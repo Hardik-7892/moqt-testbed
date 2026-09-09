@@ -1,0 +1,237 @@
+# Builds the moxygen CLIENT image from source at a pinned commit and stages the
+# real media binaries (moqflvstreamerclient / moqflvreceiverclient) that the
+# official images do NOT ship.
+#
+# The official moxygen CI publishes exactly two images, each with ONE binary:
+#   ghcr.io/facebookexperimental/moqrelay               -> moqrelayserver
+#   ghcr.io/facebookexperimental/moxygen-interop-client -> moq_interop_client
+# The FLV media pub/sub clients exist in the repo (samples/, BUILD_SAMPLES=ON
+# by default) but are never staged. We build from source at the SAME pinned
+# commit used for the relay image (Makefile MXY_TAG) and stage them here.
+#
+# Build (see Makefile build-moxygen):
+#   docker build --build-arg MXY_COMMIT=<sha> \
+#     -t 0hardikpandey/moxygen-client:<draft> \
+#     -f docker/moxygen/Dockerfile.media docker/moxygen/
+#
+# Dep pin override: proxygen is re-pinned to MXY_PROXYGEN_COMMIT below.
+# moxygen@4095b18's own pin (2052038ce4db) has a use-after-free in
+# WebTransportImpl::onWebTransportUniStream that SIGSEGVs the FLV clients on the
+# first server-initiated uni stream (openmoq/moqx#403). proxygen 3ad19acf
+# ("Buffer unknown WebTransport uni/bidi streams in HQSession") fixes it and
+# still ships the old qmux targets (qmux_framer/qmux_session/qmux_connector)
+# that moxygen@4095b18's CMakeLists requires, so ONLY proxygen moves; the other
+# deps (folly/fizz/wangle/mvfst) stay at moxygen@4095b18's pins.
+#
+# proxygen@3ad19acf's samples need newer mvfst timestamp-frame APIs that
+# moxygen@4095b18's mvfst predates. patch_proxygen.py (step [1.5], copied in
+# below) makes the checkout build-compatible:
+#   - forces BUILD_SAMPLES=OFF in proxygen's top-level CMakeLists (moxygen
+#     links only proxygen libs, never its sample executables; the hq/masque/push
+#     binaries that reference the new mvfst APIs are skipped), and
+#   - strips the timestamp-frame references from HQCommandLine.cpp (built
+#     unconditionally as part of proxygen_hq_samples, which moxygen does not
+#     link). Editing the source CMakeLists makes cmake auto-regenerate on the
+#     next `cmake --build`, so the define takes effect without a build-dir wipe.
+#
+# Client crash fixes (patch_moxygen.py, step [1.6]): the pinned moxygen client
+# has two residual races that SIGSEGV it even with the fixed proxygen:
+#   - MoQWebTransportClient.cpp calls session->drain() immediately after the
+#     WebTransport handshake, racing in-flight uni-stream dispatch
+#     (WebTransportImpl::onWebTransportUniStream UAF). The drain is removed.
+#   - MoQFlvStreamerClient::publishLoop iterates the subscriptions_ map on the
+#     IO executor while subscribe()/unsubscribe() mutate it on the EventBase
+#     thread; a mutex now guards it (relay-driven STOP_SENDING teardown crash).
+# Step [1.6] pre-fetches the moxygen repo into the getdeps scratch cache (if
+# absent), patches the working tree, and clears the moxygen build/install dirs
+# once per rev (sentinel /cache/.moxygen-client-patched) so the binaries are
+# rebuilt from the patched source.
+#
+# The relay image (docker/moxygen/Dockerfile.relay) is built FROM this client
+# image so the server ALSO runs the fixed proxygen 3ad19acf instead of the
+# official ghcr moqrelay's unfixed 2052038 build.
+
+ARG MXY_COMMIT=4095b1811a2d69d267a858b6483fc72fa7ea0588
+ARG MXY_PROXYGEN_COMMIT=3ad19acf78fb42db0b0a71ba0558af2b6c909d7b
+
+# Stage 1: Build (mirrors upstream docker/Dockerfile, includes samples)
+FROM ubuntu:24.04 AS builder
+
+ARG MXY_COMMIT
+ARG MXY_PROXYGEN_COMMIT
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    gcc \
+    g++ \
+    make \
+    libssl-dev \
+    m4 \
+    doxygen \
+    python3 \
+    python3-pip \
+    sudo
+
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
+WORKDIR /app
+
+# Clone moxygen at the pinned commit (depth-1 fetch, same pattern as imquic images)
+RUN GIT_ASKPASS=/bin/true git init moxygen && \
+    cd moxygen && \
+    git remote add origin https://github.com/facebookexperimental/moxygen.git && \
+    git fetch --depth 1 origin ${MXY_COMMIT} && \
+    git checkout FETCH_HEAD
+
+WORKDIR /app/moxygen
+
+RUN ./build/fbcode_builder/getdeps.py install-system-deps --recursive moxygen
+
+COPY patch_proxygen.py /patch_proxygen.py
+COPY patch_moxygen.py /patch_moxygen.py
+
+# Build moxygen with the media samples. The getdeps scratch dir (/cache/scratch)
+# lives on a BuildKit cache mount (id=moxygen-getdeps), which:
+#   - persists across builds, so a failed/rerun build RESUMES from the last
+#     completed dependency instead of restarting (getdeps skips projects with a
+#     valid .built-by-getdeps marker), and
+#   - is NOT part of the image layer, so the tens-of-GB compile tree never
+#     bloats the stored image (no rm -rf needed).
+# Requires BuildKit (enabled in the Makefile via DOCKER_BUILDKIT=1).
+# getdeps output goes to BOTH the build log (live progress) and a persisted
+# copy on the cache mount, so a failed/stopped run never hides the real error.
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
+RUN --mount=type=cache,target=/cache,id=moxygen-getdeps,sharing=locked \
+    LOG=/cache/getdeps.log; \
+    rm -f "$LOG" /cache/FIXED-ERROR.txt; \
+    echo "=== [1/4] pinning moxygen + proxygen (getdeps hash-file mechanism) ==="; \
+    mkdir -p build/deps/github_hashes/facebookexperimental; \
+    printf 'Subproject commit %s\n' "$MXY_COMMIT" > build/deps/github_hashes/facebookexperimental/moxygen-rev.txt; \
+    echo "    wrote build/deps/github_hashes/facebookexperimental/moxygen-rev.txt:"; \
+    cat build/deps/github_hashes/facebookexperimental/moxygen-rev.txt; \
+    mkdir -p build/deps/github_hashes/facebook; \
+    printf 'Subproject commit %s\n' "$MXY_PROXYGEN_COMMIT" > build/deps/github_hashes/facebook/proxygen-rev.txt; \
+    echo "    wrote build/deps/github_hashes/facebook/proxygen-rev.txt (override):"; \
+    cat build/deps/github_hashes/facebook/proxygen-rev.txt; \
+    echo "=== [1.5] proxygen build-compat patches (BUILD_SAMPLES=OFF, mvfst timestamp removal) ==="; \
+    REPO=/cache/scratch/repos/github.com-facebook-proxygen.git; \
+    if [ ! -d "$REPO/.git" ]; then \
+        echo "    proxygen repo missing from cache; pre-fetching $MXY_PROXYGEN_COMMIT"; \
+        mkdir -p "$REPO"; \
+        git -C "$REPO" init -q; \
+        git -C "$REPO" remote add origin https://github.com/facebook/proxygen.git; \
+        git -C "$REPO" fetch --depth 1 origin "$MXY_PROXYGEN_COMMIT"; \
+        git -C "$REPO" checkout -q FETCH_HEAD; \
+    fi; \
+    python3 /patch_proxygen.py; \
+    echo "=== [1.5b] gperf manifest: ftpmirror.gnu.org down (504/timeout), re-point to ftp.gnu.org ==="; \
+    sed -i 's#https://ftpmirror.gnu.org/gnu/gperf/gperf-3.3.tar.gz#https://ftp.gnu.org/gnu/gperf/gperf-3.3.tar.gz#' build/fbcode_builder/manifests/gperf; \
+    grep '^url' build/fbcode_builder/manifests/gperf; \
+    echo "=== [1.6] moxygen client crash fixes (drain race, publishLoop teardown race) ==="; \
+    MREPO=/cache/scratch/repos/github.com-facebookexperimental-moxygen.git; \
+    if [ ! -d "$MREPO/.git" ]; then \
+        echo "    moxygen repo missing from cache; pre-fetching $MXY_COMMIT"; \
+        mkdir -p "$MREPO"; \
+        git -C "$MREPO" init -q; \
+        git -C "$MREPO" remote add origin https://github.com/facebookexperimental/moxygen.git; \
+        git -C "$MREPO" fetch --depth 1 origin "$MXY_COMMIT"; \
+        git -C "$MREPO" checkout -q -f FETCH_HEAD; \
+    elif [ "$(git -C "$MREPO" rev-parse HEAD 2>/dev/null || echo '')" != "$MXY_COMMIT" ]; then \
+        echo "    moxygen repo at different rev; fetching $MXY_COMMIT"; \
+        git -C "$MREPO" fetch --depth 1 origin "$MXY_COMMIT"; \
+        git -C "$MREPO" checkout -q -f FETCH_HEAD; \
+    fi; \
+    if [ "$(cat /cache/.moxygen-client-patched 2>/dev/null)" != "$MXY_COMMIT-patch2" ]; then \
+        echo "    applying moxygen client fixes (first build at this rev)"; \
+        python3 /patch_moxygen.py; \
+        rm -rf /cache/scratch/build/moxygen /cache/scratch/installed/moxygen; \
+        echo "$MXY_COMMIT-patch2" > /cache/.moxygen-client-patched; \
+        echo "    forced moxygen rebuild (build/install dirs cleared)"; \
+    else \
+        echo "    moxygen client fixes already applied for $MXY_COMMIT; skipping"; \
+    fi; \
+    echo "=== [2/4] project source heads (from build cache) ==="; \
+    for p in moxygen folly fizz wangle mvfst proxygen; do \
+        d=$(./build/fbcode_builder/getdeps.py --scratch-path /cache/scratch show-source-dir "$p" 2>/dev/null) || d=''; \
+        if [ -n "$d" ] && [ -d "$d/.git" ]; then echo "    $p: $(git -C "$d" rev-parse HEAD 2>/dev/null || echo unknown)"; else echo "    $p: (no src dir in cache yet)"; fi; \
+    done; \
+    echo "=== [3/4] patching installed mvfst export with events quic_executor compat ==="; \
+    INST=$(./build/fbcode_builder/getdeps.py --scratch-path /cache/scratch show-inst-dir mvfst); \
+    TGT="$INST/lib/cmake/mvfst/mvfst-targets.cmake"; \
+    echo "    INST=$INST"; \
+    if [ ! -f "$TGT" ]; then \
+        echo "    mvfst not installed yet; warming cache (getdeps build mvfst)"; \
+        ./build/fbcode_builder/getdeps.py build --allow-system-packages --verbose --no-tests \
+            --scratch-path /cache/scratch --num-jobs 2 mvfst 2>&1 | tee -a "$LOG" || \
+            { echo "=== FAILED (mvfst warm build) — tail ==="; tail -40 "$LOG"; exit 1; }; \
+        if [ ! -f "$TGT" ]; then echo "ERROR: $TGT still missing after mvfst warm build"; exit 1; fi; \
+    fi; \
+    if grep -q 'mvfst_common_events_quic_executor' "$TGT"; then \
+        echo "    target already present; skipping patch"; \
+    else \
+        printf '%s\n' \
+'if(NOT TARGET mvfst::mvfst_common_events_quic_executor)' \
+'  add_library(mvfst::mvfst_common_events_quic_executor INTERFACE IMPORTED)' \
+'  set_target_properties(mvfst::mvfst_common_events_quic_executor PROPERTIES' \
+'    INTERFACE_LINK_LIBRARIES "mvfst::mvfst_common_events_eventbase;Folly::folly_executor"' \
+'  )' \
+'endif()' >> "$TGT"; \
+        echo "    patched $TGT"; \
+    fi; \
+    echo "=== [4/4] building moxygen (getdeps rebuilds only deps whose pin changed, e.g. proxygen) ==="; \
+    ./build/fbcode_builder/getdeps.py build --allow-system-packages --verbose --no-tests \
+        --scratch-path /cache/scratch --num-jobs 2 moxygen 2>&1 | tee -a "$LOG" || \
+        { tail -300 "$LOG" > /cache/FIXED-ERROR.txt; echo "=== FAILED (moxygen phase) — tail ==="; tail -40 "$LOG"; exit 1; }; \
+    echo "=== BUILD OK ==="
+
+# Stage the media binaries + getdeps-built shared libs for the runtime image.
+# Re-attach the same cache mount so the scratch is visible; use --scratch-path so
+# show-inst-dir resolves the same install dir as the build above.
+RUN --mount=type=cache,target=/cache,id=moxygen-getdeps,sharing=locked \
+    set -e; \
+    INST_DIR=$(./build/fbcode_builder/getdeps.py --scratch-path /cache/scratch show-inst-dir moxygen); \
+    echo "INST_DIR=$INST_DIR"; \
+    GETDEPS_INSTALLED=/cache/scratch/installed; \
+    mkdir -p /staging/bin /staging/lib; \
+    for B in moqflvstreamerclient moqflvreceiverclient moqrelayserver; do \
+        if [ -f "$INST_DIR/bin/$B" ]; then \
+            cp "$INST_DIR/bin/$B" /staging/bin/; echo "staged $B"; \
+        else \
+            echo "MISSING binary: $INST_DIR/bin/$B"; exit 1; \
+        fi; \
+    done; \
+    if [ -f "$INST_DIR/bin/moq_interop_client" ]; then \
+        cp "$INST_DIR/bin/moq_interop_client" /staging/bin/; echo "staged moq_interop_client (optional)"; \
+    fi; \
+    find "$GETDEPS_INSTALLED" -name 'libglog.so*' -exec cp -P {} /staging/lib/ \;; \
+    find "$GETDEPS_INSTALLED" -name 'libunwind.so*' -exec cp -P {} /staging/lib/ \;; \
+    echo "=== staged bins ==="; ls -1 /staging/bin; \
+    echo "=== staged libs ==="; ls -1 /staging/lib
+
+# Stage 2: Runtime
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsodium23 \
+    libdouble-conversion3 \
+    libevent-2.1-7t64 \
+    libgflags2.2 \
+    libssl3t64 \
+    libsnappy1v5 \
+    zlib1g \
+    ca-certificates \
+    openssl \
+    iproute2 \
+    tcpdump \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /staging/bin/ /usr/local/bin/
+COPY --from=builder /staging/lib/ /usr/local/lib/
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+RUN mkdir -p /data /output
+
+ENTRYPOINT ["/bin/bash"]

@@ -1,0 +1,35 @@
+{
+  "run_id": "imquic-sub-d18-baseline",
+  "timestamp": "2026-09-08T13:35:24.266606+00:00",
+  "config": {
+    "id": "imquic-sub-d18-baseline",
+    "expect": "fail",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/relay:18"
+    },
+    "sub": {
+      "impl": "imquic",
+      "draft": 18,
+      "tag": "imquic/cli:18"
+    },
+    "network": {
+      "bw": 100,
+      "delay": "10ms",
+      "loss": 0
+    },
+    "topology": "basic"
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  }
+}

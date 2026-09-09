@@ -1,0 +1,52 @@
+# B4 (see found-bugs.md): DRAFT is wired through to the runtime via the
+# entrypoint (-M $MOQ_DRAFT), so imquic/relay:{16,17,18,19} still build the
+# SAME pinned commit, but each tag now negotiates its own draft at runtime.
+ARG DRAFT=18
+
+FROM ubuntu:24.04 AS builder
+
+ARG DRAFT
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+    git cmake build-essential pkg-config libglib2.0-dev libjansson-dev libssl-dev libbrotli-dev autoconf automake libtool ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN GIT_ASKPASS=/bin/true git init picoquic && \
+    cd picoquic && \
+    git remote add origin https://github.com/private-octopus/picoquic.git && \
+    git fetch --depth 1 origin 0dbd19d39f72bbc76fd8c71621ce7f474fc43bd0 && \
+    git checkout FETCH_HEAD && \
+    cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DPICOQUIC_FETCH_PTLS=Y . && \
+    make -j$(nproc)
+
+RUN GIT_ASKPASS=/bin/true git init imquic && \
+    cd imquic && \
+    git remote add origin https://github.com/meetecho/imquic.git && \
+    git fetch --depth 1 origin 1f4cbf8a638b80ef40f251fe9787b29f192b0cee && \
+    git checkout FETCH_HEAD && \
+    ln -s /picoquic picoquic && \
+    ./autogen.sh && \
+    ./configure --prefix=/build/imquic --enable-moq-examples && \
+    make -j$(nproc) install
+
+FROM ubuntu:24.04
+
+ARG DRAFT
+ENV MOQ_DRAFT=$DRAFT
+
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+    libglib2.0-0t64 libjansson4 libssl3t64 ca-certificates iproute2 tcpdump && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/imquic/bin/imquic-moq-relay /usr/local/bin/
+COPY --from=builder /build/imquic/bin/imquic-moq-interop-test /usr/local/bin/
+COPY --from=builder /build/imquic/lib/libimquic.so* /usr/local/lib/
+RUN ldconfig 2>/dev/null || true
+
+RUN mkdir -p /certs /data /output /mlog
+
+EXPOSE 4443/udp 4443/tcp
+
+COPY scripts/entrypoint-relay.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

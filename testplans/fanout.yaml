@@ -1,0 +1,87 @@
+name: "fanout"
+description: "Fan-out topology tests — Pub -> Relay -> Sub1..SubN (multi-subscriber)"
+topology: "fanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+  num_subscribers: 3
+test_duration: 20
+runs:
+  # Same-impl baseline: moq-rs pub/relay with 3 subscribers
+  - id: "fanout-moqrs-3sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 3 }
+
+  # 2 subscribers (minimum fanout)
+  - id: "fanout-moqrs-2sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 2 }
+
+  # Under loss with 3 subscribers
+  - id: "fanout-moqrs-3sub-loss1pct"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 3, bw: 50, delay: "20ms", loss: 1 }
+
+  # Same-impl: moxygen FLV fan-out (short media, no BBB dependency).
+  - id: "fanout-moxygen-3sub"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { num_subscribers: 3 }
+    expect: pass
+    reason: "same-impl FLV fan-out; per-sub delivery plus Jain fairness"
+
+  # Same-impl: imquic clock fan-out, scored on object receipt per subscriber.
+  - id: "fanout-imquic-3sub"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { num_subscribers: 3 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "same-impl clock fan-out; per-sub receipt counts plus Jain fairness"
+
+  # Mixed-impl fan-out: two moq-rs subs + one imquic sub off a moq-rs relay.
+  # Exercises per-subscriber impl overrides (sub3); the imquic leg is
+  # expected to fail on B43 framing, so the row is TN by design while the
+  # moq-rs legs still yield per-sub verdicts.
+  - id: "fanout-mixed-moqrs-imquic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    sub3: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { num_subscribers: 3 }
+    expect: fail
+    reason: "B43: imquic sub3 cannot parse moq-rs relay SETUP (close 271); sub1/sub2 should still deliver"
+
+  # Late-join: third subscriber joins 5s after start (D6 honest partial if
+  # it misses the prefix).
+  - id: "fanout-moqrs-late-join-5s"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 5 }
+    expect: pass
+    reason: "late joiner served from current group onward"
+
+  # Late-join on the FLV path.
+  - id: "fanout-moxygen-late-join-5s"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 5 }
+    expect: pass
+    reason: "late joiner on the FLV self-path; flip on evidence"

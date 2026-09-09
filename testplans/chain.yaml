@@ -1,0 +1,81 @@
+name: "relay-chain"
+description: "Relay chaining tests — Pub -> RelayA -> RelayB -> Sub"
+topology: "chain"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  relay_delay: "20ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 20
+runs:
+  # Same-impl baseline
+  - id: "chain-moqrs-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+
+  # Under loss — Phase 2 (P0-1): loss constrained on the INTER-RELAY link via
+  # devices.relay_a (merged: bw 50 / delay 20ms / loss 1 on relay_a->s2).
+  # Sub unlisted (-> CLEAN) to isolate the relay-to-relay hop. relay_delay is
+  # inert while devices.relay_a is present, so the 20ms inter-relay delay is
+  # carried by devices.relay_a.delay instead.
+  - id: "chain-loss1pct"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 1
+      devices:
+        relay_a: { delay: "20ms", loss: 1 }
+
+  # Cross-impl: imquic as upstream (passive relay — no coordinator/client
+  # support in this harness), moq-rs as downstream. NOTE: with a non-moq-rs
+  # upstream there is no shared-coordinator registration, so the moq-rs
+  # downstream cannot discover upstream tracks; these rows document that
+  # limitation honestly.
+  - id: "chain-imquic-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    expect: fail
+    reason: "no shared-coordinator registration for non-moq-rs upstream; moq-rs downstream cannot discover tracks"
+
+  # Cross-impl: same limitation as chain-imquic-moqrs.
+  - id: "chain-moxygen-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    expect: fail
+    reason: "no shared-coordinator registration for non-moq-rs upstream; moq-rs downstream cannot discover tracks"
+
+  # Same-impl chains per working implementation (short media, no BBB).
+  # moxygen: FLV chain; imquic: clock chain scored on object receipt.
+  # Both are probes — non-moq-rs relays have no shared-coordinator
+  # registration, so flip expect on green evidence.
+  - id: "chain-moxygen-moxygen"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay_a: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    relay_b: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    expect: fail
+    reason: "moxygen relay-to-relay propagation is unprobed (no coordinator sharing); TN until evidence"
+
+  - id: "chain-imquic-imquic"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay_a: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    relay_b: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: fail
+    reason: "imquic relay-to-relay propagation is unprobed (no coordinator sharing); TN until evidence"

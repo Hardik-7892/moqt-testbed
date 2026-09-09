@@ -1,0 +1,21 @@
+name: "capture-smoke"
+description: >
+  B3/B11 verification plan: one moq-rs self-to-self run with tcpdump capture
+  enabled (capture: true) so pcaps/, qlogs/ and keys/ all get exercised. Run
+  after `sudo make build-all` (images need tcpdump). Check that pcaps/*.pcap
+  are non-empty and readable, qlogs/ has per-connection .sqlog files, and the
+  metrics block shows real objects_published / throughput / delivered.
+topology: "basic"
+capture: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+runs:
+  - id: "capture-moqrs-d18-baseline"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }

@@ -1,0 +1,82 @@
+name: "missed-subgroup-drop"
+description: >
+  MoQ-native mechanism pilot (file 16 §16.2): subgroup drop-to-latest under
+  pressure. Relay advances to latest GROUP instead of HOL-blocking on stale
+  subgroups — the MoQT congestion response distinct from TCP stall or DASH
+  re-fetch. Single-track bbb-video.mp4 dodges B37 multi-track interleave;
+  evidence already wired (tc_*.log, mlog group lists, groups_missing,
+  artifact_thr, prefix-on-delivered). Hypothesis: constrained rows show
+  non-contiguous groups_missing growing while byte_identical_pct stays high on
+  the delivered prefix and throughput plateaus at relay-serve rate, not link
+  rate. Read groups_missing + prefix + artifact_thr, never mlog throughput
+  alone (B38). n=1 pilot (appendix-only); promote only at REPEATS=3.
+  Expectations below are pilot priors only: under require_integrity:true a
+  full-coverage mismatch reads fail and a shortfall reads partial (D14) —
+  either status counts as pressure evidence here. Promote only the
+  groups_missing/prefix/artifact signature, never the status.
+topology: "basic"
+network_defaults:
+  bw: 20
+  delay: "20ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 60
+media: "bbb-video.mp4"
+require_integrity: true
+runs:
+  - id: "drop-bw20-loss0-q1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 0, max_queue_size: 1000 }
+    expect: pass
+    reason: "unconstrained control; full groups expected, integrity gate should hold"
+  - id: "drop-bw20-loss0-q100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 0, max_queue_size: 100 }
+    expect: pass
+    reason: "shallow-queue control; drops (if any) are tail-drop, not drop-to-latest"
+  - id: "drop-bw5-loss0-q1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 0, max_queue_size: 1000 }
+    expect: partial
+    reason: "pressure candidate: serve rate below push rate; non-contiguous groups_missing with high delivered prefix is the signature"
+  - id: "drop-bw5-loss0-q100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 0, max_queue_size: 100 }
+    expect: partial
+    reason: "shallow queue under pressure; compares drop discipline vs deep-queue row"
+  - id: "drop-bw20-loss1-q1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 1, max_queue_size: 1000 }
+    expect: pass
+    reason: "loss without pressure; QUIC recovery should preserve contiguity (contrast with pressure rows)"
+  - id: "drop-bw20-loss1-q100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 1, max_queue_size: 100 }
+    expect: pass
+    reason: "loss with shallow queue; recovery-vs-drop baseline for the bw5 rows"
+  - id: "drop-bw5-loss1-q1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 1, max_queue_size: 1000 }
+    expect: partial
+    reason: "combined pressure; strongest drop-to-latest candidate (cf. found-bugs 132-137/194 precedent)"
+  - id: "drop-bw5-loss1-q100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 1, max_queue_size: 100 }
+    expect: partial
+    reason: "combined pressure, shallow queue; disciplines compared across the four bw5 rows"

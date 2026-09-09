@@ -1,0 +1,7 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+chain-imquic-imquic,1,fail,mismatch,414.0,414.0,1,12.522,12.522,1,1,0.01003,,,0,414.3472022955524,414.3472022955524,1
+chain-imquic-moqrs,1,fail,mismatch,0.0,0.0,1,26.4366,26.4366,1,1,0.0,,,0,,,0
+chain-loss1pct,1,pass,good,286333.0,286333.0,1,10.6635,10.6635,1,1,0.997796,,,0,285600.0,285600.0,1
+chain-moqrs-moqrs,1,pass,good,286333.0,286333.0,1,61.1493,61.1493,1,1,0.997796,,,0,285600.0,285600.0,1
+chain-moxygen-moqrs,1,fail,mismatch,0.0,0.0,1,31.273,31.273,1,1,0.0,,,0,,,0
+chain-moxygen-moxygen,1,fail,mismatch,0.0,0.0,1,,,0,1,0.0,,,0,,,0

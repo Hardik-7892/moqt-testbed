@@ -1,0 +1,61 @@
+name: "moq-rs-self"
+description: >
+  moq-rs self-interop across every built draft (14/16/18): the Cloudflare
+  Rust stack talking to itself. Draft-18 rows use sample_1seg.mp4 — the
+  multi-segment sample.mp4 cannot be archive-caught-up by moq-rs's own
+  client+relay at this pin (found-bugs.md B45), so a 1seg baseline is the
+  honest TP. Draft-14/16 rows use the regular sample.mp4 (as in
+  cross-impl.yaml). Together with imquic-self.yaml (clock/object_receipt)
+  and moxygen-self.yaml (FLV) this gives one self-path per implementation
+  for RQ2 baselines and per-impl sweep comparisons.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+media: "sample.mp4"
+runs:
+  - id: "moqrs-self-d14"
+    pub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    relay: { impl: "moq-rs", draft: 14, tag: "moq-rs/relay:14" }
+    sub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl baseline; draft verified CONFIRMED by make verify"
+
+  - id: "moqrs-self-d16"
+    pub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    relay: { impl: "moq-rs", draft: 16, tag: "moq-rs/relay:16" }
+    sub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl baseline; draft verified CONFIRMED by make verify"
+
+  - id: "moqrs-self-d18"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl baseline on single-segment media (B45: multi-segment sample.mp4 is not deliverable at this pin)"
+
+  - id: "moqrs-self-d18-loss1pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: pass
+    reason: "QUIC loss recovery on the self-path; 1% must not break delivery"
+
+  - id: "moqrs-self-d18-loss5pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }
+    expect: pass
+    reason: "QUIC loss recovery on the self-path; 5% must degrade, not kill, delivery"

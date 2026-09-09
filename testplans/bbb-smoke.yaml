@@ -1,0 +1,24 @@
+name: "bbb-smoke"
+description: >
+  Single-row BBB smoke: prove the 121 MB fragmented remux delivers
+  end-to-end at draft-18 on the re-pinned relay (B25 verification at
+  scale). Clean channel, no loss, pcap capture on. Runs until transfer
+  completes (coverage-gated quiesce) or 180 s, whichever comes first.
+topology: "basic"
+capture: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 180
+media: "bbb.mp4"
+runs:
+  - id: "moqrs-d18-bbb-smoke"
+    # Local tags deliberately: the 0hardikpandey/* Hub tags on the VM held a
+    # stale pre-repin image whose draft-18 wire revision differs from the
+    # rebuilt relay -> "no mutually supported MoQT version" at handshake
+    # (run_20260825_232238). Local tags are what every green run tonight used.
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }

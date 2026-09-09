@@ -1,0 +1,90 @@
+name: "interop-quick"
+description: >
+  Quick smoke test — the draft-18 interop matrix of the 3 impls used in this
+  thesis: moq-rs (pub, sub, relay), imquic (sub, relay only — its demo moq-pub
+  is a clock generator that can't ingest media, see registry.json), and
+  moxygen (relay only — its FLV media clients need a source build; the Hub
+  relay works). moqtail / moq-dev / quiche-moq are out of scope.
+  pub is always moq-rs; relay ∈ {moq-rs, imquic, moxygen}; sub ∈ {moq-rs, imquic}.
+  Multi-draft coverage lives in interop-full.yaml.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+runs:
+  # --- Same-impl baseline ---
+  # moq-rs cell media: the multi-segment sample.mp4 can't be archive-caught-up
+  # by moq-rs's own client+relay at this pin (sub with no start fetches only the
+  # latest group once a fast push completes — found-bugs.md B45). sample_1seg.mp4
+  # is a single-segment archive the moq-rs stack delivers 100% (regression:
+  # media swap on 2026-08-31 silently broke these rows, which had passed with a
+  # 2-object sample since 2026-07). All other rows keep sample.mp4.
+  - id: "moqrs-d18-baseline"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # --- Cross-impl, draft-18 ---
+  # imquic<->moq-rs cells are expected red: upstream WT/MoQ capsule framing
+  # mismatch at these pins (found-bugs.md B43) — moq-rs can't parse imquic's
+  # server SETUP (InvalidMessage(33)) and imquic can't parse moq-rs's (close
+  # 271 "No WebTransport protocol returned"). Unmark when newer tags interop.
+  - id: "imquic-relay-d18-baseline"
+    expect: fail
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-sub-d18-baseline"
+    expect: fail
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "moqrs-pub-imquic-relay-imquic-sub-d18-baseline"
+    expect: fail
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # moxygen relay serves its WebTransport CONNECT at /moq; moq-rs clients now
+  # use the relay's client_path for the URL (found-bugs.md B43). HTTP/WT connect
+  # + moq-rs pub->relay publish now work (relay registers the publisher), but
+  # moq-rs sub<->moxygen relay still never completes a MoQ session at these pins
+  # (relay logs no session activity; sub waits forever on server SETUP) -> 0 B.
+  - id: "moxygen-relay-d18-baseline"
+    expect: fail
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "moxygen-relay-imquic-sub-d18-baseline"
+    expect: fail
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # --- Under loss ---
+  - id: "moqrs-loss1pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+
+  - id: "moqrs-loss5pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }

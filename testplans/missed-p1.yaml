@@ -1,0 +1,107 @@
+name: "missed-p1"
+description: >
+  Missed P1 interactions from dissertation_research/14 audit (all keys
+  validation-clean). B5: queue x loss collapse regime (queue-sweep fixes loss 0,
+  loss-sweep fixes queue 1000; standing queue + loss is the RTO-amplification
+  case, I16). B6: inter-relay-only vs sub-leg-only loss separation (D12; the
+  only chain comparison justifying two relays: shared fate vs isolated leg).
+  B9: fanout N=8 scaling + asymmetric delay skew (existing fanout varies bw
+  only; straggler-viewer spread at constant throughput exercises
+  worst-sets-verdict scaling). B7 datagram-vs-stream deliberately excluded here:
+  run-level `mode` is unwired (plan_validation.py UNWIRED_RUN_KEYS) and would
+  fail validation; it needs the single-key threading described in file 14 §B7
+  before any row is written.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 60
+media: "sample.mp4"
+runs:
+  # ---- B5: queue x loss on bw5 (bufferbloat collapse regime) ----
+  - id: "queue100-loss0-bw5"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 0, max_queue_size: 100 }
+    expect: pass
+    reason: "shallow-queue control; RTO rare, drop recovers fast"
+  - id: "queue1000-loss0-bw5"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 0, max_queue_size: 1000 }
+    expect: pass
+    reason: "standing-queue control (~2s at bw5); flat per current null, qlog RTT carries the queue"
+  - id: "queue100-loss1-bw5"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 1, max_queue_size: 100 }
+    expect: pass
+    reason: "loss with shallow queue; fast loss recovery, collapse not expected"
+  - id: "queue1000-loss1-bw5"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, delay: "20ms", loss: 1, max_queue_size: 1000 }
+    expect: pass
+    reason: "collapse candidate: deep queue + loss amplifies RTO; artifact_thr vs q100-loss1 is the result"
+
+  # ---- B6: chain leg separation (shared fate vs isolated leg) ----
+  - id: "chain-loss1-inter-relay-only"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      relay_delay: "20ms"
+      devices:
+        relay_a: { delay: "20ms", loss: 1 }
+    expect: pass
+    reason: "loss on relay_a->s2 only, sub CLEAN; hurts all downstream (shared fate); needs tc_relay_a.log"
+  - id: "chain-loss1-sub-only"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 1
+      relay_delay: "20ms"
+    expect: pass
+    reason: "loss on sub leg only, inter-relay CLEAN; isolates edge fragility from relay-to-relay fragility"
+
+  # ---- B9: fanout scaling + delay skew ----
+  - id: "fanout-moqrs-8sub"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 8, bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "worst-sets-verdict scaling past N=4; per-sub artifact table is the result, mlog sum never cited"
+  - id: "fanout-moqrs-delay-skew"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      num_subscribers: 3
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      devices:
+        sub1: { delay: "10ms" }
+        sub2: { delay: "50ms" }
+        sub3: { delay: "200ms" }
+    expect: pass
+    reason: "straggler-viewer spread at constant throughput; per-sub RTT/artifact divergence, independent last-mile label"

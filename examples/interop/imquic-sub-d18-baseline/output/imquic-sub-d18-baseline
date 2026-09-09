@@ -1,0 +1,34 @@
+imquic version 0.0.2/alpha
+  -- 1f4cbf8a638b80ef40f251fe9787b29f192b0cee (commit hash)
+  -- Tue Sep  8 01:00:35 UTC 2026 (build time)
+
+Negotiating version of MoQ 18
+Using a SUBSCRIBE for the subscription
+Using namespace '.2f' (1 tuples)
+Using 'SUBSCRIBE' as the Largest Object filter type
+Creating QLOG file(s) in '/qlogs'
+  -- Logging QUIC events
+
+[moq-sub] Enabling QLOG logging of QUIC frames
+ALPN(s):
+  -- moqt-18
+WebTransport Protocol(s):
+  -- moqt-18
+[moq-sub] Connecting to remote endpoint
+[moq-sub/1] Connection established (ALPN=h3)
+[moq-sub/1] New MoQ connection (configuring parameters)
+[moq-sub/1]   -- WebTransport (moqt-18)
+[moq-sub/1] Waiting for MoQ connection to be ready (SETUP)...
+[moq-sub/1] MoQ connection ready
+[moq-sub/1]   -- draft-ietf-moq-transport-18
+[moq-sub/1]   -- unknown implementation
+[moq-sub/1] Subscribing to '.2f--imquic-sub-d18-baseline' (hex), using ID 0
+[33m[WARN][0m [moq-sub/1][MoQ] Broken MoQ message (didn't advance from offset 0/0)
+We've been asked to stop sending on stream 4
+[moq-sub/1][MoQ] Got STOP_SENDING for STREAM 4: 0 (Internal Error)
+[moq-sub/1][MoQ]   -- Getting rid of SUBSCRIBE '0'
+[31m[ERR][0m [moq.c:imquic_moq_parse_message:2042] [moq-sub/1][MoQ] MoQ message 'REQUEST_ERROR' (05) is not allowed on media streams
+Stopping subscriber, please wait...
+[moq-sub] Shutting down client
+[moq-sub/1] MoQ connection gone
+Bye!

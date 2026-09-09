@@ -1,0 +1,84 @@
+name: "diag-bbb"
+description: >
+  Diagnostic plan for the moq-rs large-file (121 MB bbb) delivery failure found
+  in run_20260818_145813 / run_20260818_152553. Two suspected moq-rs defects:
+    H1: the relay starves a slow subscriber once its per-track buffer fills
+        (pub feeds ~4 MB/s; loss1/bw10 effective downlink is slower), so the
+        sub gets only the init track (~4 KB) with no relay errors.
+    H2: an intermittent relay race on clean links (track_alias not found ->
+        STOP_SENDING), killing delivery at an arbitrary point.
+  Rows test H1 by throttling the pub->relay leg below the downlink (via the
+  B12 network.devices map): if delivery then proceeds continuously, H1 is
+  confirmed and the throttled config is a workable measurement setup.
+  B36 TAG NOTE: rows use Hub tags (0hardikpandey/moq-rs-*:18). Before running
+  on the VM, re-tag the local pin onto them:
+  `sudo docker tag moq-rs/relay:18 0hardikpandey/moq-rs-relay:18 &&
+   sudo docker tag moq-rs/client:18 0hardikpandey/moq-rs-client:18`.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 30
+media: "bbb.mp4"
+runs:
+  # Ceiling: how far a clean delivery gets in 60 s (pub parse-rate bound?).
+  - id: "moqrs-d18-bbb-clean-60"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    test_duration: 60
+
+  # Reproduce the deterministic slow-sub starvation (controls).
+  - id: "moqrs-d18-bbb-loss1"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+
+  - id: "moqrs-d18-bbb-bw10"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { bw: 10, delay: "10ms", loss: 0 }
+
+  # H1 discriminator: pub throttled below the downlink so the relay buffer
+  # never fills. If delivery proceeds, H1 is confirmed.
+  - id: "moqrs-d18-bbb-bw10-pub1"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network:
+      bw: 10
+      delay: "10ms"
+      loss: 0
+      devices:
+        pub: { bw: 1, delay: "10ms", loss: 0 }
+        sub: { bw: 10, delay: "10ms", loss: 0 }
+
+  - id: "moqrs-d18-bbb-loss1-pub2"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 1
+      devices:
+        pub: { bw: 2, delay: "10ms", loss: 0 }
+        sub: { bw: 50, delay: "20ms", loss: 1 }
+
+  # Same-rate pub/downlink: another way to keep the relay buffer flat.
+  - id: "moqrs-d18-bbb-bw10-eq"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network:
+      bw: 10
+      delay: "10ms"
+      loss: 0
+      devices:
+        pub: { bw: 10, delay: "10ms", loss: 0 }
+        sub: { bw: 10, delay: "10ms", loss: 0 }

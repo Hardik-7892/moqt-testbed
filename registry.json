@@ -1,0 +1,308 @@
+{
+  "draft": "https://datatracker.ietf.org/doc/draft-ietf-moq-transport/",
+  "implementations": [
+    {
+      "name": "moq-rs",
+      "org": "Cloudflare",
+      "language": "Rust",
+      "image": {
+        "relay": "0hardikpandey/moq-rs-relay:{draft}",
+        "client": "0hardikpandey/moq-rs-client:{draft}"
+      },
+      "source": "https://github.com/cloudflare/moq-rs",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "14",
+        "16",
+        "18"
+      ],
+      "negotiated_drafts": {},
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "moq-relay-ietf --bind [::]:4443 --tls-cert /certs/cert.pem --tls-key /certs/key.pem --qlog-dir /qlogs --mlog-dir /qlogs",
+        "pub": "moq-pub --name {stream} --tls-disable-verify https://{relay}:{port}{path}",
+        "sub": "moq-sub --name {stream} --tls-disable-verify https://{relay}:{port}{path}"
+      },
+      "sub_output": {
+        "file": "/output/{stream}",
+        "stdout_is_data": true,
+        "logs_on_stdout": "ansi_timestamp",
+        "playable": { "transform": "strip_ansi", "ext": "mp4", "reconstruct": true }
+      },
+      "cert_aliases": {},
+      "port": 4443,
+      "notes": "Draft-18 line = merged draft-18-dev (PR #193) at commit a6ed4e9 (2026-07-24); drafts 14/16/18 each pin a different commit (see Dockerfile). Relay writes JSON-SEQ qlog/mlog per connection via --qlog-dir/--mlog-dir (qlogs/ volume); pub/sub rely on the relay's server-side qlog. moq-rs honors SSLKEYLOGFILE (real NSS key-log lines observed in run_20260818_181221), so captured pcaps are decryptable. Large-file relay delivery is broken at this pin (B25, deferred)."
+    },
+    {
+      "name": "moxygen",
+      "org": "Meta",
+      "language": "C++",
+      "image": {
+        "relay": "0hardikpandey/moxygen-relay:{draft}",
+        "client": "0hardikpandey/moxygen-client:{draft}"
+      },
+      "source": "https://github.com/facebookexperimental/moxygen",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "14",
+        "16",
+        "18"
+      ],
+      "negotiated_drafts": {},
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "moqrelayserver -port {port} -cert /certs/certificate.pem -key /certs/certificate.key -endpoint /moq",
+        "pub": "moqflvstreamerclient --insecure --input_flv_file {file} --connect_url https://{relay}:{port}/moq --track_namespace {stream} --logging DBG1",
+        "sub": "moqflvreceiverclient --insecure --flv_outpath {dir}/{stream}.flv --connect_url https://{relay}:{port}/moq --track_namespace {stream} --logging DBG1"
+      },
+      "sub_output": {
+        "file": "/output/{stream}.flv",
+        "stdout_is_data": false,
+        "playable": { "transform": "copy", "ext": "flv" }
+      },
+      "cert_aliases": {
+        "certificate.pem": "cert.pem",
+        "certificate.key": "key.pem"
+      },
+      "port": 9448,
+      "client_path": "/moq",
+      "notes": "Builds on Meta's mvfst QUIC stack; supports WebTransport. Client image is a source build (docker/moxygen/Dockerfile.media) at the pinned commit \u2014 official images only ship moqrelayserver / moq_interop_client, so the FLV media clients (moqflvstreamerclient / moqflvreceiverclient) must be built from source. Media is FLV (h264/AAC-LC) via MoQMI, so moxygen runs use .flv files and byte comparison is approximate (transmux), not byte-exact. Draft claims are UNVERIFIED (evidence 'boot'): the WebTransport ClientHello ALPN is 'h3' and the raw moqt:// client never offers moqt-18 at this pin (B46), so no passively-observable wire artifact encodes the negotiated draft \u2014 do not trust run labels named d18 to mean draft 18."
+    },
+    {
+      "name": "imquic",
+      "org": "Meetecho",
+      "language": "C",
+      "image": {
+        "relay": "0hardikpandey/imquic-relay:{draft}",
+        "client": "0hardikpandey/imquic-cli:{draft}"
+      },
+      "source": "https://github.com/meetecho/imquic",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "negotiated_drafts": {},
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "imquic-moq-relay -p 4443 -q -w -c /certs/cert.pem -k /certs/priv.key -Q /qlogs -l quic -s /keys/sslkeys.log",
+        "pub": "imquic-moq-pub -r {relay} -R {port} -M {draft} -q -w -S localhost -c /certs/cert.pem -n / -N {stream} -Q /qlogs -l quic -s /keys/sslkeys.log",
+        "sub": "imquic-moq-sub -r {relay} -R {port} -M {draft} -q -w -S localhost -c /certs/cert.pem -n / -N {stream} -t hex -Q /qlogs -l quic -s /keys/sslkeys.log"
+      },
+      "sub_output": {
+        "file": "/output/{stream}",
+        "stdout_is_data": true,
+        "playable": { "transform": "hex_decode", "ext": "mp4" }
+      },
+      "cert_aliases": {
+        "priv.key": "key.pem"
+      },
+      "port": 4443,
+      "notes": "Picoquic-based; supports drafts 16/17/18/19 natively. Draft selection is RUNTIME via -M/--moq-draft-version (default any = offer all four ALPNs moqt-19,moqt-18,moqt-17,moqt-16 and negotiate the highest common), NOT a build-time configure flag (B4: the Dockerfile DRAFT arg is unused; the four image tags are identical). The SUB entrypoint passes '-M {draft}' so each run pins the draft its plan declares (with default 'any' the sub silently negotiates moqt-19 even on a draft-18 row, B4); the runner supplies {draft} from the run config. The RELAY entrypoint is deliberately UNPINNED: pinning the relay to '-M 18' changed its advertised WebTransport protocol to moqt-18 only and imquic-moq-relay then REJECTS moq-rs clients with 'Unsupported WebTransport protocol(s)' (close 271), whereas the default 'any' relay accepts each peer per-connection (moq-rs pub at moqt-18, imquic sub at its claimed draft), so cross-impl interop requires the unpinned relay (finding 2026-09-05). Registered as relay + pub + sub: imquic's demo moq-pub is a test-data clock generator (one timestamp object/sec, per moq-pub.c main loop) and CANNOT ingest a media file, so it is excluded from media-delivery tests but IS used by same- impl clock plans (testplans/imquic-self.yaml) where negotiation and object delivery (not file integrity) are the assertions. The PUB entrypoint also passes '-M {draft}' so an all-imquic run sees both connections negotiate the plan's claimed draft (relay.log evidence); with the default 'any' the pub silently negotiates moqt-19 on every row. That is a feature gap in its demo tool, NOT a protocol incompatibility with other implementations' pubs (interop is demonstrated per-role). RTT measurement: all three entrypoints pass '-Q /qlogs -l quic', which arms picoquic's native qlog (per-connection <cid>.server.qlog/.client.qlog; trace title 'picoquic'). Its 'recovery'/'metrics_updated' events carry smoothed_rtt/min_rtt/latest_rtt in MICROSECONDS (vs moq-rs/quinn qlogs in seconds); the runner's metrics parser auto-detects by the 'picoquic' marker. '-s /keys/sslkeys.log' additionally makes picoquic write its SSLKEYLOGFILE (each container shares the bind-mounted /keys), so capture plans can also derive wire-level RTT from decrypted QUIC ACK frames (runner already exports SSLKEYLOGFILE, but the env var alone is NOT enough: imquic only calls picoquic_set_key_log_file when -s is given). The sub entrypoint replaces the old positional-URL form (imquic is flags-only; positional args caused '[FATAL] Invalid QUIC server address'); -n is namespace, -N is track name. '-t hex' is REQUIRED: imquic's payload reaches stdout only via IMQUIC_LOG (g_print) when a payload type is set, and its target_file option is not wired to any CLI flag. 'text' mode uses printf('%.*s') and truncates at the first NUL byte, which drops MP4 payloads (box sizes start with 0x00); 'hex' (%02x per byte) is lossless. Without -t the artifact is only 'Incoming object:' metadata (see B18/B2)."
+    },
+    {
+      "name": "lldash-h2",
+      "org": "Baseline LL-DASH over H2",
+      "language": "Python/nginx",
+      "image": {
+        "relay": "0hardikpandey/lldash-origin-h2:latest",
+        "client": "0hardikpandey/lldash-client-h2:latest"
+      },
+      "source": "baseline",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "h2"
+      ],
+      "negotiated_drafts": {},
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "sh -c \"echo relay started; exec nginx -g 'daemon off;'\"",
+        "pub": "sh -c 'echo lldash-h2 pub ready; cat {file} > /dev/null; echo pub_started; sleep 1'",
+        "sub": "python3 /app/client.py --origin https://{relay}:{port} --mpd {file} --output {dir}/{stream}.mp4 --protocol h2 --join-delay {join_delay}"
+      },
+      "sub_output": {
+        "file": "/output/{stream}.mp4",
+        "stdout_is_data": false,
+        "playable": { "transform": "copy", "ext": "mp4" }
+      },
+      "cert_aliases": {},
+      "port": 443,
+      "notes": "LL-DASH baseline over HTTP/2 (TCP+TLS). decisions.md D8 H2 = TCP HOL baseline. Origin nginx:alpine http2 443 with certs from harness/certs.py; client httpx[http2] fetches MPD+segments sequentially (2s segment = 2s MoQ group, decisions.md D2.2). Port 443 to mirror MoQ TLS. Mounts /data for MPD/segments + /certs for TLS. TTFO measured via client time_to_first_chunk_ms log."
+    },
+    {
+      "name": "lldash-h3",
+      "org": "Baseline LL-DASH over H3",
+      "language": "Python/Caddy",
+      "image": {
+        "relay": "0hardikpandey/lldash-origin-h3:latest",
+        "client": "0hardikpandey/lldash-client-h3:latest"
+      },
+      "source": "baseline",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "h3"
+      ],
+      "negotiated_drafts": {},
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "sh -c \"echo relay started; exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile\"",
+        "pub": "sh -c 'echo lldash-h3 pub ready; cat {file} > /dev/null; echo pub_started; sleep 1'",
+        "sub": "python3 /app/client.py --origin https://{relay}:{port} --mpd {file} --output {dir}/{stream}.mp4 --protocol h3 --join-delay {join_delay}"
+      },
+      "sub_output": {
+        "file": "/output/{stream}.mp4",
+        "stdout_is_data": false,
+        "playable": { "transform": "copy", "ext": "mp4" }
+      },
+      "cert_aliases": {},
+      "port": 443,
+      "notes": "LL-DASH baseline over HTTP/3 (QUIC+TLS). decisions.md D8 H3 = QUIC baseline isolates app semantics (both QUIC). Origin caddy:alpine h3 443/udp with same certs + SSLKEYLOGFILE for Wireshark decrypt; client aioquic/httpx fallback. Same 2s segment alignment. Together H2+H3 show transport vs object-model win vs MoQ."
+    }
+  ],
+  "disabled_implementations": [
+    {
+      "name": "moqtail",
+      "org": "Community",
+      "language": "Rust",
+      "image": {
+        "relay": "ghcr.io/moqtail/relay:latest",
+        "client": "ghcr.io/moqtail/relay:latest"
+      },
+      "source": "https://github.com/moqtail/moqtail",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "16"
+      ],
+      "negotiated_drafts": {
+        "16": null
+      },
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "moqtail-relay --port 4433 --cert-file /certs/cert.pem --key-file /certs/key.pem",
+        "pub": "moqtail-client -c publish --server https://{relay}:4433 --input {file}",
+        "sub": "moqtail-client -c subscribe --server https://{relay}:4433 --output {dir}"
+      },
+      "cert_aliases": {},
+      "port": 4433,
+      "notes": "draft-16 compliant; supports WebTransport + raw QUIC. Historical branches: draft-11, draft-14. Draft-18 milestone active but not yet merged."
+    },
+    {
+      "name": "moq-dev",
+      "org": "kixelated",
+      "language": "Rust",
+      "image": {
+        "relay": "moqdev/moq-relay:latest",
+        "client": "moqdev/moq-cli:latest"
+      },
+      "source": "https://github.com/moq-dev/moq",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "18"
+      ],
+      "negotiated_drafts": {
+        "18": null
+      },
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "moq-relay --bind [::]:4443 --tls-cert /certs/cert.pem --tls-key /certs/key.pem",
+        "pub": "moq-cli publish https://{relay}:4443/anon/{stream} < {file}",
+        "sub": "moq-cli subscribe https://{relay}:4443/anon/{stream}"
+      },
+      "cert_aliases": {},
+      "port": 4443,
+      "notes": "Default mode is moq-lite; IETF MoQT mode via moq-net library. Most starred MoQ repo."
+    },
+    {
+      "name": "quiche-moq",
+      "org": "Google",
+      "language": "C++",
+      "image": {
+        "relay": "quiche-moq:16",
+        "client": "quiche-moq:16"
+      },
+      "source": "https://github.com/google/quiche",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "16"
+      ],
+      "negotiated_drafts": {
+        "16": null
+      },
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "moq_relay",
+        "pub": "moq_client --publish https://{relay}:443 {stream}",
+        "sub": "moq_client --subscribe https://{relay}:443 {stream}"
+      },
+      "cert_aliases": {},
+      "port": 443,
+      "notes": "Relay-only in practice; Bazel build. Google's quiche (not Cloudflare's). Optional \u2014 Bazel build is heavy."
+    },
+    {
+      "name": "moq-go",
+      "org": "Community",
+      "language": "Go",
+      "image": {
+        "relay": "moq-go-relay:19",
+        "client": "moq-go-client:19"
+      },
+      "source": "https://github.com/floatdrop/moq-go",
+      "roles": [
+        "relay",
+        "pub",
+        "sub"
+      ],
+      "claimed_drafts": [
+        "18",
+        "19"
+      ],
+      "negotiated_drafts": {
+        "18": null,
+        "19": null
+      },
+      "features_supported": [],
+      "entrypoints": {
+        "relay": "relay",
+        "pub": "msfdemo publish",
+        "sub": "msfdemo subscribe"
+      },
+      "cert_aliases": {},
+      "port": 4433,
+      "notes": "CANDIDATE under consideration (MoSCoW): Go impl tracking draft-ietf-moq-transport-19 (main branch draft-19; draft-18 branch also exists). Registered as 'moq-go' in moq-interop-runner. NOT yet built/verified in this testbed \u2014 image names are local-build placeholders, entrypoints are best-effort and need a Dockerfile + verification before enabling."
+    }
+  ]
+}

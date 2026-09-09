@@ -1,0 +1,26 @@
+# LL-DASH Origin H3 (Caddy) — HTTP/3 over QUIC+TLS
+# decisions.md D8: H3 = QUIC baseline isolates app semantics (both QUIC)
+# Caddy has native H3 (QUIC) support; nginx-quic requires custom build.
+FROM caddy:alpine
+
+# Caddyfile: serve /data on both TCP (H1/H2 fallback) and UDP (H3/QUIC).
+# Caddy enables H3 automatically when TLS is configured (Alt-Svc header).
+# Keep syntax minimal — the previous global `servers { protocols }` block and
+# multi-line `handle` broke `caddy adapt` (see run_20260905_173031 relay.log:
+# "Unexpected next token after '{'"). Serving /data as root covers
+# sample_120s.mp4 + sample_120s.mpd + init/chunk .m4s in one site.
+RUN mkdir -p /data /usr/share/caddy && \
+    printf ':443 {\n\
+\ttls /certs/cert.pem /certs/key.pem\n\
+\troot * /data\n\
+\tfile_server\n\
+\theader Cache-Control "no-cache"\n\
+}\n\
+:80 {\n\
+\tredir https://{host}:443{uri}\n\
+}\n' > /etc/caddy/Caddyfile
+
+RUN apk add --no-cache iproute2 bash
+
+EXPOSE 80 443 443/udp
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

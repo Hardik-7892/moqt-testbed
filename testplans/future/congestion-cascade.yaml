@@ -1,0 +1,122 @@
+name: "congestion-cascade"
+description: >
+  Cascading congestion across relay chains and fanout topologies.
+  
+  WHY THIS TEST: Real-world congestion often cascades through multiple
+  network elements. In MoQ, congestion at one hop (relay-to-relay link)
+  propagates to other hops and affects all downstream subscribers.
+  This tests how MoQ relays handle cascading congestion.
+  
+  KEY SCENARIOS:
+  1. Chain: congestion propagates through relay chain
+  2. Fanout: shared bottleneck at relay affects all subscribers
+  3. Asymmetric fanout: mixed subscriber capacity under congestion
+  
+  WHY THESE SCENARIOS:
+  - Tests relay queue cascade and group skipping behavior
+  - Tests per-subscriber fairness under shared congestion
+  - Tests relay queue occupancy and group skipping behavior
+  - Measures per-hop RTT and queue delay
+  
+  DESIGN DECISIONS:
+  - bbb-video.mp4 (111MB) for sustained congestion
+  - 120s duration for sustained congestion dynamics
+  - Per-sub bandwidth limits to create controlled congestion
+  - Chain: inter-relay bottleneck
+  - Fanout: shared relay bottleneck
+  
+  IMPLEMENTATIONS: moq-rs (primary)
+  
+topology: "chain"
+test_duration: 120
+media: "bbb-video.mp4"
+runs:
+  - id: "chain_cascade_2relay"
+    topology: "chain"
+    relays: 2
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 200
+      relay_delay: "20ms"
+    expect: partial
+
+  - id: "chain_cascade_3relay"
+    topology: "chain"
+    relays: 3
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0.5
+      max_queue_size: 100
+      relay_delay: "20ms"
+    expect: partial
+
+  - id: "chain_cascade_loss"
+    topology: "chain"
+    relays: 2
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 2
+      max_queue_size: 100
+      relay_delay: "20ms"
+    expect: partial
+
+  - id: "fanout_cascade_symmetric"
+    topology: "fanout"
+    num_subscribers: 4
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 100
+    devices:
+      sub1: { bw: 10 }
+      sub2: { bw: 10 }
+      sub3: { bw: 10 }
+      sub4: { bw: 10 }
+    expect: partial
+
+  - id: "fanout_cascade_asymmetric"
+    topology: "fanout"
+    num_subscribers: 4
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+    devices:
+      sub1: { bw: 2 }
+      sub2: { bw: 5 }
+      sub3: { bw: 10 }
+      sub4: { bw: 20 }
+    expect: partial
+
+  - id: "fanout_cascade_loss"
+    topology: "fanout"
+    num_subscribers: 4
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 1
+      max_queue_size: 200
+    devices:
+      sub1: { bw: 5 }
+      sub2: { bw: 5 }
+      sub3: { bw: 5 }
+      sub4: { bw: 5 }
+    expect: partial
+
+metrics:
+  - per_hop_rtt
+  - relay_queue_occupancy_p50_p99
+  - group_skipping_count_per_relay
+  - per_sub_delivery_completion_pct
+  - cascade_latency_ms
+  - relay_queue_occupancy_per_hop
+  - group_skipping_per_relay
+  - per_sub_group_coverage
+  - relay_queue_delay_ms
+  - cascade_latency_per_hop

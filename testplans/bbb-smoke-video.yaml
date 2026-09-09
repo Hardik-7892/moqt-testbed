@@ -1,0 +1,21 @@
+name: "bbb-smoke-video"
+description: >
+  Single-TRACK BBB smoke: video-only remux (fetch-bbb-video) so moq-rs's
+  arrival-order stdout capture has no interleaving -- the received artifact
+  is byte-comparable AND playable (the multi-track bbb.mp4 capture is not:
+  stale data_offsets after interleave, run_20260825_233139). Clean channel,
+  no loss, no pcap (speed A/B handled by bbb-smoke-nocap).
+topology: "basic"
+capture: false
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 300
+media: "bbb-video.mp4"
+runs:
+  - id: "moqrs-d18-bbb-video-smoke"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }

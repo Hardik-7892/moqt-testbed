@@ -1,0 +1,126 @@
+name: "join-leave-dynamics"
+description: >
+  Join/leave timing and late-join behavior testing.
+  
+  WHY THIS TEST: Real-world MoQ sessions have dynamic participants.
+  Subscribers join late, leave early, rejoin. The relay must handle
+  cache warmup, group synchronization, and cache eviction correctly.
+  
+  KEY SCENARIOS:
+  1. Late join: subscriber joins after publisher started
+  2. Early leave + rejoin: subscriber leaves and rejoins
+  3. Chain late join: late join in multi-relay chain
+  
+  WHY THESE SCENARIOS:
+  - Late join: Tests relay cache state and group synchronization
+  - Leave/rejoin: Tests cache eviction and warmup
+  - Chain late join: Tests multi-relay cache synchronization
+  
+  DESIGN DECISIONS:
+  - 180s duration for long-running dynamics
+  - bbb-video.mp4 for multi-group content
+  - Late join delays: 5s (early) and 30s (late)
+  - Leave/rejoin: 10s leave, rejoin at 20s
+  
+  IMPLEMENTATIONS: moq-rs (primary)
+  
+topology: "fanout"
+test_duration: 180
+media: "bbb-video.mp4"
+runs:
+  - id: "late_join_5s"
+    topology: "fanout"
+    num_subscribers: 3
+    late_joins:
+      - { sub: "sub3", delay: "5s" }
+    network:
+      bw: 20
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+      late_sub_count: 1
+      late_join_delay_s: 5
+    expect: pass
+
+  - id: "late_join_30s"
+    topology: "fanout"
+    num_subscribers: 3
+    late_joins:
+      - { sub: "sub3", delay: "30s" }
+    network:
+      bw: 20
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+      late_sub_count: 1
+      late_join_delay_s: 30
+    expect: pass
+
+  - id: "leave_rejoin_10s"
+    topology: "fanout"
+    num_subscribers: 3
+    leave_rejoin:
+      - { sub: "sub2", leave: "20s", rejoin: "30s" }
+    network:
+      bw: 20
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "chain_late_join_10s"
+    topology: "chain"
+    relays: 2
+    late_joins:
+      - { sub: "sub", delay: "10s" }
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      late_sub_count: 1
+      late_join_delay_s: 10
+    expect: pass
+
+  - id: "staggered_late_joins"
+    topology: "fanout"
+    num_subscribers: 4
+    late_joins:
+      - { sub: "sub3", delay: "10s" }
+      - { sub: "sub4", delay: "20s" }
+    network:
+      bw: 20
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 4
+      late_sub_count: 2
+    expect: pass
+
+  - id: "leave_rejoin_congestion"
+    topology: "fanout"
+    num_subscribers: 3
+    leave_rejoin:
+      - { sub: "sub2", leave: "15s", rejoin: "25s" }
+    network:
+      bw: 10
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 100
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 3 }
+        sub2: { bw: 3 }
+        sub3: { bw: 3 }
+    expect: partial
+
+metrics:
+  - join_latency_ms
+  - first_object_after_join_ms
+  - cache_warmup_time_ms
+  - group_missed_on_join
+  - relay_cache_hit_on_join
+  - group_divergence_after_join

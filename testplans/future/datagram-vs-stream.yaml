@@ -1,0 +1,101 @@
+name: "datagram-vs-stream"
+description: >
+  MoQ transport mode comparison: datagram vs stream.
+  
+  WHY THIS TEST: MoQ supports two transport modes over QUIC:
+  - Datagram mode: Uses QUIC datagrams (unreliable, no HOL blocking)
+  - Stream mode: Uses QUIC streams (reliable, potential HOL blocking)
+  
+  This tests the tradeoffs between modes under impairment.
+  
+  WHY THIS TEST:
+  - Datagram: Lower latency, no HOL blocking, but loss = object loss
+  - Stream: Reliable delivery, but potential HOL blocking
+  
+  WHY THESE CONDITIONS:
+  - Basic topology: end-to-end comparison
+  - Fanout: multi-subscriber HOL blocking impact
+  - Loss: 1% to trigger stream HOL blocking vs datagram loss
+  
+  DESIGN DECISIONS:
+  - sample.mp4 for fast iteration
+  - 60s duration for sustained comparison
+  - 1% loss to trigger stream HOL blocking vs datagram loss
+  
+  IMPLEMENTATIONS: moq-rs (supports both modes)
+  
+topology: "basic"
+test_duration: 60
+media: "sample.mp4"
+runs:
+  - id: "datagram-basic"
+    mode: "datagram"
+    topology: "basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 1, max_queue_size: 1000 }
+    expect: pass
+
+  - id: "stream-basic"
+    mode: "stream"
+    topology: "basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 1, max_queue_size: 1000 }
+    expect: pass
+
+  - id: "datagram-fanout"
+    mode: "datagram"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "stream-fanout"
+    mode: "stream"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "datagram-high-loss"
+    mode: "datagram"
+    topology: "basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 10, max_queue_size: 1000 }
+    expect: partial
+
+  - id: "stream-high-loss"
+    mode: "stream"
+    topology: "basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 20, delay: "20ms", loss: 10, max_queue_size: 1000 }
+    expect: partial
+
+metrics:
+  - throughput_mbps
+  - object_loss_rate
+  - rtt_p50_p99
+  - head_of_line_blocking_events
+  - playable_reconstruction_pct
+  - time_to_first_object_ms

@@ -1,0 +1,134 @@
+name: "track-priority"
+description: >
+  MoQ track priority and filter type testing.
+  
+  WHY THIS TEST: MoQ supports track priority (0-255) and filter types
+  (AbsoluteStart, RelativeStart) to control delivery order and late-join
+  behavior. This tests whether relays honor priority under congestion
+  and whether filter types work correctly.
+  
+  KEY SCENARIOS:
+  1. Priority levels under congestion (255 vs 128 vs 0)
+  2. Filter types: AbsoluteStart vs RelativeStart
+  3. Group order: Publisher vs Subscriber controlled
+  
+  WHY THESE SCENARIOS:
+  - Priority: Tests if relay drops low-priority first under congestion
+  - Filters: Late joiners should start from specified group
+  - Group order: Publisher vs Subscriber control affects delivery order
+  
+  DESIGN DECISIONS:
+  - Bandwidth-constrained (10 Mbps) to force priority decisions
+  - 120s duration for sustained priority testing
+  - bbb-video.mp4 for multi-group content
+  - Per-sub bandwidth limits to create congestion
+  
+  IMPLEMENTATIONS: moq-rs (primary)
+  
+topology: "fanout"
+test_duration: 120
+media: "bbb-video.mp4"
+runs:
+  - id: "priority_levels"
+    topology: "fanout"
+    tracks:
+      - name: "high"
+        publisher: 1
+        priority: 255
+      - name: "medium"
+        publisher: 1
+        priority: 128
+      - name: "low"
+        publisher: 1
+        priority: 0
+    network:
+      bw: 10
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 100
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 3 }
+        sub2: { bw: 3 }
+        sub3: { bw: 3 }
+    expect: partial
+
+  - id: "filter_absolute_start"
+    topology: "fanout"
+    filter_type: "AbsoluteStart"
+    start_group: 10
+    num_subscribers: 3
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "filter_relative_start"
+    topology: "fanout"
+    filter_type: "RelativeStart"
+    start_group: -5
+    num_subscribers: 3
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "group_order_publisher"
+    topology: "fanout"
+    group_order: "Publisher"
+    num_subscribers: 3
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "group_order_subscriber"
+    topology: "fanout"
+    group_order: "Subscriber"
+    num_subscribers: 3
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "asymmetric_demand_congestion"
+    topology: "fanout"
+    publishers: 3
+    subscribers: 3
+    tracks:
+      - name: "popular"
+        publisher: 1
+      - name: "niche1"
+        publisher: 2
+      - name: "niche2"
+        publisher: 3
+    network:
+      bw: 10
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 100
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 2 }
+        sub2: { bw: 2 }
+        sub3: { bw: 2 }
+    expect: partial
+
+metrics:
+  - per_track_delivery_latency_ms
+  - group_coverage_per_sub
+  - priority_drop_rate
+  - filter_effectiveness
+  - group_divergence_symmetric_diff

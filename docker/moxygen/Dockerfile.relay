@@ -1,0 +1,23 @@
+# moxygen RELAY image built from OUR source-built client image so the server
+# side ALSO runs the fixed proxygen (3ad19acf, "Buffer unknown WebTransport
+# uni/bidi streams in HQSession"). The official ghcr.io/facebookexperimental/
+# moqrelay image ships the old, unfixed proxygen 2052038ce4db (openmoq/moqx#403
+# dispatch UAF), which is what makes the self-interop run flaky (the client
+# crashes when the relay dispatches uni-streams during setup/teardown).
+#
+# The client image (docker/moxygen/Dockerfile.media) already stages
+# moqrelayserver + the getdeps-built shared libs; this image only adds the
+# entrypoint wrapper. The harness (harness/runner.py) overrides the entrypoint
+# to `sleep infinity` and execs `moqrelayserver ...` directly, mounting certs
+# at /certs, so nothing else is required.
+#
+# Build (see Makefile build-moxygen):
+#   docker build -t 0hardikpandey/moxygen-relay:<draft> \
+#     -f docker/moxygen/Dockerfile.relay docker/moxygen/
+
+FROM 0hardikpandey/moxygen-client:latest
+
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,21 @@
+name: "imquic-rtt-probe"
+description: "Scratch single-row probe to verify qlog RTT collection (picoquic metrics_updated -> rtt_estimate_ms) and wire RTT from decrypted pcaps."
+topology: "basic"
+capture: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+data_check: object_receipt
+min_objects: 1
+require_draft: true
+require_integrity: false
+integrity_threshold: 0.0
+test_duration: 12
+runs:
+  - id: "imquic-rtt-probe"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }

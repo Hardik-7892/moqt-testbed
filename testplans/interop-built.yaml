@@ -1,0 +1,85 @@
+name: "interop-built"
+description: "Quick test for built images only — moq-rs, moxygen, imquic"
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+runs:
+  # --- Baseline: same impl, same draft ---
+  - id: "moqrs-d18-baseline"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl baseline on single-segment media (B45)"
+
+  - id: "moxygen-d18-baseline"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    media: "bbb.flv"
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl FLV baseline"
+
+  # imquic is registered as relay + sub only (its demo moq-pub is a clock
+  # generator, not a media publisher — see registry.json). So instead of an
+  # all-imquic baseline we exercise imquic's relay and sub against a real
+  # moq-rs publisher.
+  - id: "moqrs-pub-imquic-relay-imquic-sub-d18-baseline"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "B43 framing on the pub->relay leg; re-probe candidate per the unpinned-relay finding (2026-09-05)"
+
+  # --- Cross-impl, draft-18 ---
+  - id: "moqrs-pub-moxygen-relay-imquic-sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "moxygen relay never completes a MoQ session with non-moxygen clients (both legs unverified)"
+
+  - id: "moqrs-pub-moqrs-relay-imquic-sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "B43 framing: imquic sub cannot parse moq-rs relay SETUP (close 271)"
+
+  - id: "moxygen-pub-imquic-relay-moqrs-sub"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    media: "bbb.flv"
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "B43 framing on the sub leg (moq-rs sub vs imquic relay); FLV pub leg additionally unverified"
+
+  # --- Under loss ---
+  - id: "moqrs-loss1pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: pass
+    reason: "self-path under loss on single-segment media (B45)"
+
+  - id: "moqrs-loss5pct"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }
+    expect: pass
+    reason: "self-path under loss on single-segment media (B45)"

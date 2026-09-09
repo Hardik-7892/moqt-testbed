@@ -1,0 +1,247 @@
+name: "bbr-cubic-fairness"
+description: >
+  QUIC congestion control fairness: BBR vs CUBIC competition.
+  
+  WHY THIS TEST: QUIC implementations use different congestion control
+  algorithms (CUBIC, BBRv1, BBRv2, BBRv3, QUIC-DC). When different
+  CCAs compete for the same bottleneck, fairness issues arise.
+  This tests CC fairness under MoQ traffic patterns.
+  
+  WHY THIS TEST:
+  - BBR tends to dominate CUBIC in shared bottlenecks
+  - BBR versions differ in fairness behavior
+  - MoQ's object delivery model interacts with CC differently than TCP
+  
+  WHY THESE PAIRINGS:
+  - CUBIC vs BBRv1: Classic loss-based vs model-based
+  - CUBIC vs BBRv2: BBRv2 improved fairness
+  - CUBIC vs BBRv3: BBRv3 further improvements
+  - BBRv2 vs BBRv3: BBR family internal fairness
+  - QUIC-DC vs CUBIC: Delay-based vs loss-based
+  
+  WHY THESE TOPOLOGIES:
+  - Basic: End-to-end CC competition
+  - Fanout: Multi-flow competition at shared bottleneck
+  
+  DESIGN DECISIONS:
+  - 20 Mbps bottleneck to create contention
+  - 20ms RTT + 1000 queue for bufferbloat
+  - 120s duration for steady-state fairness
+  - bbb-video.mp4 for sustained load
+  
+  IMPLEMENTATION SUPPORT (check per-impl CC support):
+  - moq-rs: CUBIC, BBRv1 (via mvfst/quiche)
+  - moxygen: BBRv1 (via mvfst)
+  - picoquic: CUBIC, BBRv1
+  - quiche: CUBIC, BBRv2, BBRv3
+  - mvfst: CUBIC, BBRv1, BBRv2, BBRv3
+  
+  This plan uses available impl pairs with matching CC support.
+  
+topology: "basic"
+test_duration: 120
+media: "bbb-video.mp4"
+runs:
+  - id: "cubic-vs-bbrv1-moqrs-moxygen"
+    topology: "basic"
+    impl_pairs:
+      - ["moq-rs", "moxygen"]
+    cc_algos:
+      - ["CUBIC", "BBRv1"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "cubic-vs-bbrv2-mvfst-picoquic"
+    topology: "basic"
+    impl_pairs:
+      - ["mvfst", "picoquic"]
+    cc_algos:
+      - ["CUBIC", "BBRv2"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "cubic-vs-bbrv2-quiche-mvfst"
+    topology: "basic"
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    cc_algos:
+      - ["CUBIC", "BBRv2"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "cubic-vs-bbrv3-quiche-mvfst"
+    topology: "basic"
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    cc_algos:
+      - ["CUBIC", "BBRv3"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "bbrv2-vs-bbrv3-quiche-mvfst"
+    topology: "basic"
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    cc_algos:
+      - ["BBRv2", "BBRv3"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "quicdc-vs-cubic"
+    topology: "basic"
+    impl_pairs:
+      - ["mvfst", "quiche"]
+    cc_algos:
+      - ["QUIC-DC", "CUBIC"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "fanout-cubic-vs-bbrv1"
+    topology: "fanout"
+    num_subscribers: 2
+    cc_algos:
+      - ["CUBIC", "BBRv1"]
+    impl_pairs:
+      - ["moq-rs", "moxygen"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 2
+      devices:
+        sub1: { bw: 10 }
+        sub2: { bw: 10 }
+    expect: partial
+
+  - id: "fanout-cubic-vs-bbrv2"
+    topology: "fanout"
+    num_subscribers: 2
+    cc_algos:
+      - ["CUBIC", "BBRv2"]
+    impl_pairs:
+      - ["mvfst", "quiche"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 2
+      devices:
+        sub1: { bw: 10 }
+        sub2: { bw: 10 }
+    expect: partial
+
+  - id: "fanout-bbrv2-vs-bbrv3"
+    topology: "fanout"
+    num_subscribers: 2
+    cc_algos:
+      - ["BBRv2", "BBRv3"]
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 2
+      devices:
+        sub1: { bw: 10 }
+        sub2: { bw: 10 }
+    expect: partial
+
+  - id: "asymmetric-cubic-bbrv1"
+    topology: "fanout"
+    num_subscribers: 2
+    cc_algos:
+      - ["CUBIC", "BBRv1"]
+    impl_pairs:
+      - ["moq-rs", "moxygen"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 2
+      devices:
+        sub1: { bw: 15 }
+        sub2: { bw: 5 }
+    expect: partial
+
+  - id: "asymmetric-bbrv2-bbrv3"
+    topology: "fanout"
+    num_subscribers: 2
+    cc_algos:
+      - ["BBRv2", "BBRv3"]
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 2
+      devices:
+        sub1: { bw: 15 }
+        sub2: { bw: 5 }
+    expect: partial
+
+  - id: "loss-cubic-vs-bbrv1"
+    topology: "basic"
+    cc_algos:
+      - ["CUBIC", "BBRv1"]
+    impl_pairs:
+      - ["moq-rs", "moxygen"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+    expect: partial
+
+  - id: "loss-bbrv2-vs-bbrv3"
+    topology: "basic"
+    cc_algos:
+      - ["BBRv2", "BBRv3"]
+    impl_pairs:
+      - ["quiche", "mvfst"]
+    network:
+      bw: 20
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+    expect: partial
+
+metrics:
+  - per_flow_throughput_mbps
+  - fairness_jain
+  - rtt_p50_p99
+  - queue_delay_ms
+  - throughput_mbps
+  - object_loss_rate
+  - delivery_completion_pct
+  - rtt_p50_p99

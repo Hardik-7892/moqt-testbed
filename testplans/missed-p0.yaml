@@ -1,0 +1,109 @@
+name: "missed-p0"
+description: >
+  Missed P0 cases from dissertation_research/14 audit (all keys validation-clean;
+  no unwired keys). B1: H3 fallback knee at loss 5% (headline only has loss1;
+  client labels each segment via h3/tcp-fallback, D13). B2: late-join 30s on
+  120s media (existing late-join-5s misses ~2 groups; 30s misses ~15 and
+  exercises eviction/backfill; skip=floor(30/2)=15, D6/D10). B3: imquic pinned
+  -M 18 vs -M 16 pair proving tag-wire binding (require_draft quotes
+  WebTransport (moqt-N) per row; a true `-M any` variant has no image tag and
+  stays a manual follow-up, see reason fields). B4: moxygen FLV parity under
+  loss1/bw5 (moxygen-self.yaml has clean rows only; FLV verdicts read
+  byte_identical_pct distributions, exact never expected on transmux, D7).
+  MoQ bulk rows carry expect per D14 under require_integrity:true (full+mismatch
+  reads fail, not partial).
+media: "sample_120s.mp4"
+test_duration: 40
+require_integrity: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+runs:
+  # ---- B1: H3-fallback knee at loss 5% (same 120s 2s-seg media as headline) ----
+  - id: "h3-loss5"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { loss: 5 }
+    expect: pass
+    reason: "H3 fallback fraction vs loss1 row; read fetch_protos via-h3 vs via-tcp-fallback, not RTT"
+  - id: "h2-loss5"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { loss: 5 }
+    expect: pass
+    reason: "TCP-HOL control for the h3-loss5 knee; same segments, same loss"
+  - id: "moq-loss5"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { loss: 5 }
+    expect: fail
+    reason: "D14: full coverage likely but mismatch under integrity; no fallback path, subgroup timeouts only"
+
+  # ---- B2: late-join 30s on 120s media (join < media, duration > join + delivery) ----
+  - id: "moq-late-join-30s"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    test_duration: 70
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 30, bw: 20, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "D14 demonstration (pilot run_20260908_203020): early sub1 completes full bytes yet row reads fail/mismatch under integrity; late legs 0 bytes; status documents the gate, per_sub documents the delivery"
+  - id: "h3-late-join-30s"
+    topology: "fanout"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    test_duration: 70
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 30, bw: 20, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "DVR-window suffix-good control; compare group_missed_on_join vs MoQ row (segment vs group boundary)"
+
+  # ---- B3: imquic pin proof, -M 18 vs -M 16 (clock object_receipt, require_draft) ----
+  - id: "imquic-pin-d18"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "pinned -M 18 must quote WebTransport (moqt-18); counts identical by design, ALPN is the result"
+  - id: "imquic-pin-d16"
+    pub: { impl: "imquic", draft: 16, tag: "imquic/cli:16" }
+    relay: { impl: "imquic", draft: 16, tag: "imquic/relay:16" }
+    sub: { impl: "imquic", draft: 16, tag: "imquic/cli:16" }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "pinned -M 16 must quote (moqt-16); pair with d18 proves row labels bind wire, not tags"
+
+  # ---- B4: moxygen FLV parity under impairment (sample.flv, transmux-approximate) ----
+  - id: "moxygen-loss1"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    require_integrity: false
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: fail
+    reason: "TN documentation: FLV sub WT-connect times out post-d18-publish (0-byte evidence run_20260908_203020); flip to pass only on non-zero delivery"
+  - id: "moxygen-bw5"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    require_integrity: false
+    network: { bw: 5, delay: "10ms", loss: 0 }
+    expect: fail
+    reason: "TN documentation: same 0-byte FLV-sub fault as loss1 row; flip to pass only on non-zero delivery"

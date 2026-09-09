@@ -1,0 +1,9 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+imquic-relay-d18-baseline,3,fail+fail+fail,mismatch+mismatch+mismatch,0.0,0.0,3,11.972,30.097099999999998,3,3,0.0,,,0,,,0
+imquic-sub-d18-baseline,3,fail+fail+fail,mismatch+mismatch+mismatch,734.0,735.8000000000001,3,25.2795,33.21813,3,3,0.01279,,,0,734.5744680851064,735.8958212255659,3
+moqrs-d18-baseline,3,pass+pass+pass,mismatch+mismatch+mismatch,287288.0,287288.0,3,11.6877,11.6877,3,3,5.103411,,,0,55712.0,55712.0,3
+moqrs-loss1pct,3,pass+pass+pass,mismatch+mismatch+mismatch,287288.0,287288.0,3,11.7741,11.7741,3,3,5.103411,,,0,55712.0,55712.0,3
+moqrs-loss5pct,3,pass+pass+pass,mismatch+mismatch+mismatch,287288.0,287288.0,3,14.7426,14.7426,3,3,5.103411,,,0,55712.0,55712.0,3
+moqrs-pub-imquic-relay-imquic-sub-d18-baseline,3,fail+fail+fail,mismatch+mismatch+mismatch,591.0,591.0,3,34.462,34.462,3,3,0.010281,,,0,591.2117177097203,591.5662084132106,3
+moxygen-relay-d18-baseline,3,fail+fail+fail,mismatch+mismatch+mismatch,0.0,0.0,3,,,0,3,0.0,,,0,,,0
+moxygen-relay-imquic-sub-d18-baseline,3,fail+fail+fail,mismatch+mismatch+mismatch,442.0,442.90000000000003,3,,,0,3,0.007715,,,0,442.4966799468791,443.82328558296246,3

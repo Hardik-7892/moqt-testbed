@@ -1,0 +1,34 @@
+{
+  "run_id": "moq-loss1",
+  "timestamp": "2026-09-08T17:39:55.583805+00:00",
+  "config": {
+    "id": "moq-loss1",
+    "expect": "partial",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-client:18"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-relay:18"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-client:18"
+    },
+    "network": {
+      "loss": 1
+    },
+    "topology": "basic",
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 1,
+    "max_queue_size": 1000
+  }
+}

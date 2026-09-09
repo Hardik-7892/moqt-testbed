@@ -1,0 +1,73 @@
+name: "bbb"
+description: >
+  Big Buck Bunny (121 MB real media) long-video measurement at draft-18.
+  Unlike the 7.9 KB sample, bb.mp4 cannot finish inside the fixed
+  test_duration, so delivered_bytes vs 121,283,919 (coverage_pct) and the
+  resulting throughput IS the measurement — this exposes B13 (fixed sleep +
+  kill chops long transfers) under the current deadline model.
+  imquic appears as relay and as sub ONLY: its demo moq-pub is a test-data
+  clock generator that cannot ingest a media file (see registry.json note),
+  so imquic-as-pub runs were removed; the imquic-relay / imquic-sub runs here
+  exercise its components against a real 121 MB stream from moq-rs.
+  Images use LOCAL tags (moq-rs/*, imquic/*) — these must be built with
+  `make build-moq-rs build-imquic` before running. moxygen is intentionally
+  excluded (its official Hub image lacks the FLV media clients).
+topology: "basic"
+# B3/I13: capture per-container pcaps + TLS key log for all bbb runs so the
+# long-video measurement has wire-level evidence (qlog/mlog give the
+# application-level numbers; pcaps let a reader reproduce/decrypt in Wireshark).
+# CAUTION: 121 MB transfers produce ~150 MB+ of pcap per host, so a full bbb
+# batch needs several GB of free disk.
+capture: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 30
+media: "bbb.mp4"
+runs:
+  # --- Clean-channel baselines (identical network so impls are comparable) ---
+  - id: "moqrs-d18-bbb-clean"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-relay-d18-bbb-clean"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-sub-d18-bbb-clean"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # --- Under 1% loss (throughput penalty should be visible on a 121 MB file) ---
+  - id: "moqrs-d18-bbb-loss1"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+
+  - id: "imquic-relay-d18-bbb-loss1"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+
+  # --- Bandwidth-limited (10 Mbps — delivery is bottleneck-bound, not time-bound) ---
+  - id: "moqrs-d18-bbb-bw10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 10, delay: "10ms", loss: 0 }
+
+  - id: "imquic-sub-d18-bbb-bw10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 10, delay: "10ms", loss: 0 }

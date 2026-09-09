@@ -1,0 +1,112 @@
+name: "fairness"
+description: "Fairness experiment — Fan-out topology with per-subscriber bandwidth scarcity (I14). Tests whether MoQ relay distributes bandwidth fairly among subscribers under congestion."
+topology: "fanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+  num_subscribers: 3
+test_duration: 120
+# Phase 2 follow-up (2026-09-06, batch run_20260906_221847): moq-rs stalls at
+# ~11 KB/sub on sample.mp4 (B25 ceiling) before any shaper can bite, so every
+# row below honestly reports partial. expect: partial keeps the confusion
+# matrix green; effects curves (Jain/divergence) need non-ceiling media.
+runs:
+  # Phase 2 (P0-2) honesty note: devices.sub{i} rows below are INDEPENDENT
+  # per-subscriber last-mile shapers, NOT a shared bottleneck
+  # (topologies/base.py:68-71 — top-level bw is ignored when devices lists
+  # subs; relay stays 1000M/1ms). Shared-bottleneck approximation rows
+  # (devices.relay) are at the bottom of this file.
+  # Fairness test: 3 subscribers with asymmetric bandwidth limits
+  # Total available: 30 Mbps (10 each) but pub pushes ~30+ Mbps
+  # Expected: fair sharing ~10 Mbps each, or bottleneck behavior
+  - id: "fairness-3sub-asymmetric"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 5, delay: "10ms", loss: 0 }
+        sub2: { bw: 15, delay: "10ms", loss: 0 }
+        sub3: { bw: 30, delay: "10ms", loss: 0 }
+    expect: partial
+
+  # Fairness test: 3 subscribers with equal bandwidth limits
+  # Total available: 30 Mbps (10 each), pub pushes ~30+ Mbps
+  # Expected: fair sharing ~10 Mbps each
+  - id: "fairness-3sub-symmetric"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 10, delay: "10ms", loss: 0 }
+        sub2: { bw: 10, delay: "10ms", loss: 0 }
+        sub3: { bw: 10, delay: "10ms", loss: 0 }
+    expect: partial
+
+  # Fairness test: 4 subscribers with severe bottleneck
+  # Total capacity 20 Mbps, pub pushes ~30+ Mbps
+  # Expected: fair sharing ~5 Mbps each, or prioritized behavior
+  - id: "fairness-4sub-bottleneck"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      num_subscribers: 4
+      devices:
+        sub1: { bw: 5, delay: "10ms", loss: 0 }
+        sub2: { bw: 5, delay: "10ms", loss: 0 }
+        sub3: { bw: 5, delay: "10ms", loss: 0 }
+        sub4: { bw: 5, delay: "10ms", loss: 0 }
+    expect: partial
+
+  # Control: no per-subscriber limits (baseline)
+  - id: "fairness-3sub-unconstrained"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      num_subscribers: 3
+    expect: partial
+
+  # Phase 2 (P0-2): SHARED-EGRESS approximation. devices.relay shapes the
+  # relay->s1 wire (topologies/fanout.py:35), which every subscriber's traffic
+  # traverses — the single constraint all subs share. Subs unlisted (-> CLEAN),
+  # so any divergence is relay scheduling, not last-mile shaping. Approximation
+  # honesty: this is per-host egress shaping, not one single queue (true
+  # single-queue CBQ needs OVS QoS — future work, see
+  # 2_weeks/01-future-work-quarantine.md). Verify on VM via tc_relay.log
+  # (htb 10M) + per-sub SUM in summary.txt.
+  - id: "fairness-3sub-shared-egress-10m"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 100
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+      devices:
+        relay: { bw: 10 }
+    expect: partial
+
+  # Severe shared-egress: 5 Mbps for 3 subs — provokes drop-to-latest /
+  # group-set divergence (B37) that the 107KB sample otherwise hides.
+  - id: "fairness-3sub-shared-egress-5m"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 100
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+      devices:
+        relay: { bw: 5 }
+    expect: partial

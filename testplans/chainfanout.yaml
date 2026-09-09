@@ -1,0 +1,77 @@
+name: "chainfanout"
+description: >
+  Relay chain feeding a multi-subscriber fan-out (Pub -> RelayA -> RelayB ->
+  Sub1..SubN): relay-to-relay propagation AND per-subscriber delivery in one
+  run. Same-impl rows per working implementation (moq-rs, moxygen FLV, imquic
+  clock) plus a mixed-impl fan-out row (per-subscriber sub1..subN overrides)
+  and a late-join row. Non-moq-rs relay chains are expected fail: only moq-rs
+  relays share the coordinator file, so a non-moq-rs upstream cannot
+  propagate tracks downstream (same limitation as chain.yaml).
+topology: "chainfanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  relay_delay: "20ms"
+  loss: 0
+  max_queue_size: 1000
+  num_subscribers: 3
+test_duration: 20
+media: "sample.mp4"
+runs:
+  # Same-impl: moq-rs chain feeding 3 moq-rs subscribers.
+  - id: "chainfanout-moqrs-3sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 3 }
+    expect: pass
+    reason: "same-impl chain+fanout; coordinator chaining plus per-sub delivery"
+
+  # Same-impl: moxygen FLV chain feeding 3 moxygen subscribers (short media).
+  - id: "chainfanout-moxygen-3sub"
+    media: "sample.flv"
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay_a: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    relay_b: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { num_subscribers: 3 }
+    expect: pass
+    reason: "same-impl FLV chain+fanout; moxygen relay-to-relay propagation is unprobed — flip on evidence"
+
+  # Same-impl: imquic clock chain feeding 3 imquic subscribers.
+  - id: "chainfanout-imquic-3sub"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay_a: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    relay_b: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { num_subscribers: 3 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "same-impl clock chain+fanout scored on object receipt (demo pub cannot ingest media)"
+
+  # Mixed-impl fan-out: moq-rs chain, two moq-rs subs + one imquic sub.
+  # Exercises per-subscriber impl overrides; the imquic leg is expected to
+  # fail on B43 framing, so the row is TN by design.
+  - id: "chainfanout-mixed-moqrs-imquic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    sub3: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { num_subscribers: 3 }
+    expect: fail
+    reason: "B43: imquic sub cannot parse moq-rs relay SETUP (close 271); moq-rs legs should still deliver (per-sub verdicts)"
+
+  # Late-join: third subscriber joins 5s after start on the moq-rs chain.
+  - id: "chainfanout-moqrs-late-join-5s"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 5 }
+    expect: pass
+    reason: "late joiner served from current group onward (D6 honest partial if it misses the prefix)"

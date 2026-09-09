@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+# LL-DASH Client — supports H2 (httpx[http2]) and H3 (aioquic) via --protocol h2|h3
+# decisions.md D8: client logs protocol + negotiated ALPN for harness/measure.py
+RUN pip install --no-cache-dir aiohttp lxml httpx[http2] h2 aioquic
+
+# iproute2 for tc netem on client link (per-sub impaired)
+RUN apt-get update && apt-get install -y --no-install-recommends iproute2 curl && rm -rf /var/lib/apt/lists/*
+
+COPY client.py /app/client.py
+RUN chmod +x /app/client.py
+
+WORKDIR /app
+ENTRYPOINT ["python3", "/app/client.py"]

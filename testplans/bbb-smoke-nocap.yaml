@@ -1,0 +1,21 @@
+name: "bbb-smoke-nocap"
+description: >
+  A/B control for bbb-smoke: identical single-row BBB delivery WITHOUT pcap
+  capture. run_20260825_233139 (capture: true) crawled at ~0.77 Mbps while
+  every uncaptured run tonight ran at tens of Mbps -- this run decides
+  whether capture tapping caused the collapse or the new pin itself is slow
+  on multi-track many-object streams.
+topology: "basic"
+capture: false
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 180
+media: "bbb.mp4"
+runs:
+  - id: "moqrs-d18-bbb-smoke-nocap"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }

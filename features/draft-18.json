@@ -1,0 +1,33 @@
+{
+  "draft": "18",
+  "alpn": "moqt-18",
+  "core": [
+    "SETUP",
+    "ANNOUNCE",
+    "UNSUBSCRIBE",
+    "SUBSCRIBE",
+    "SUBSCRIBE_OK",
+    "SUBSCRIBE_ERROR",
+    "PUBLISH",
+    "PUBLISH_DONE",
+    "OBJECT_STREAM",
+    "OBJECT_DATAGRAM",
+    "SUBSCRIBE_DONE"
+  ],
+  "optional": [
+    "SUBSCRIBE_NAMESPACE",
+    "FETCH",
+    "FETCH_OK",
+    "FETCH_ERROR",
+    "PRIORITY_PARAM",
+    "AUTH_TOKEN",
+    "TRACK_STATUS_REQUEST",
+    "TRACK_STATUS"
+  ],
+  "advanced": [
+    "WEBTRANSPORT",
+    "MULTI_RELAY_FORWARD",
+    "GO_AWAY",
+    "MAX_SUBSCRIBE_ID"
+  ]
+}

@@ -1,0 +1,9 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+fanout-imquic-3sub,1,pass,mismatch,7685.0,7685.0,1,29.941,29.941,1,1,0.180437,1.0,1.0,1,7685.207100591716,7685.207100591716,1
+fanout-mixed-moqrs-imquic,1,fail,mismatch,42964.0,42964.0,1,30.4477,30.4477,1,1,0.997796,,,0,551.5453639082752,551.5453639082752,1
+fanout-moqrs-2sub,1,pass,mismatch,286333.0,286333.0,1,30.7224,30.7224,1,1,0.997796,,,0,285600.0,285600.0,1
+fanout-moqrs-3sub,1,pass,mismatch,286333.0,286333.0,1,26.3333,26.3333,1,1,0.997796,,,0,285600.0,285600.0,1
+fanout-moqrs-3sub-loss1pct,1,pass,mismatch,286333.0,286333.0,1,61.0157,61.0157,1,1,0.997796,,,0,285600.0,285600.0,1
+fanout-moqrs-late-join-5s,1,pass,mismatch,286333.0,286333.0,1,14.2434,14.2434,1,1,0.997796,,,0,285600.0,285600.0,1
+fanout-moxygen-3sub,1,fail,mismatch,0.0,0.0,1,,,0,1,0.0,,,0,,,0
+fanout-moxygen-late-join-5s,1,fail,mismatch,0.0,0.0,1,,,0,1,0.0,,,0,,,0

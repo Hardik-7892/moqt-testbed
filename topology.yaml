@@ -1,0 +1,25 @@
+# Config-driven network topology for MoQT testbed
+# Nodes define Containernet Docker hosts; links define connectivity with impairments.
+# Impairment profiles reference scenarios.yaml.
+
+nodes:
+  - id: pub1
+    role: publisher
+    impl: moq-dev
+
+  - id: relay1
+    role: relay
+    impl: moq-dev
+
+  - id: sub1
+    role: subscriber
+    impl: moq-dev
+
+links:
+  - from: pub1
+    to: relay1
+    impairment: clean
+
+  - from: relay1
+    to: sub1
+    impairment: clean

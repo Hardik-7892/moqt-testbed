@@ -1,0 +1,82 @@
+name: "lldash-baseline"
+description: >
+  LL-DASH baseline — H2 and H3 on same 2s segments = 2s MoQ groups (decisions.md D2.2/D8).
+  WHY: H2 (TCP HOL) vs H3 (QUIC) vs MoQ QUIC isolates transport vs app.
+  Sample_120s 120→0 Timer g60 2s GOP, 120s duration, test_duration 40s (enough for 60×2s under bw:5).
+
+topology: "basic"
+media: "sample_120s.mp4"
+test_duration: 40
+# Enforce byte-value check for ALL impls (harness/verify.py:283 exact)
+# require_integrity true => mismatch fails, not just count
+require_integrity: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+
+runs:
+  # H2 baseline — basic clean
+  - id: "lldash-h2-basic-clean"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # H3 baseline — basic clean (same content, QUIC)
+  - id: "lldash-h3-basic-clean"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # H2 fanout N=3 — fairness I14
+  - id: "lldash-h2-fanout-3"
+    topology: "fanout"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }
+
+  # H3 fanout N=3 — fairness I14
+  - id: "lldash-h3-fanout-3"
+    topology: "fanout"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }
+
+  # H2 chain — origin→edge→client
+  - id: "lldash-h2-chain"
+    topology: "chain"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay_a: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay_b: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { bw: 50, delay: "10ms", relay_delay: "20ms", loss: 0 }
+
+  # H3 chain — origin→edge→client QUIC
+  - id: "lldash-h3-chain"
+    topology: "chain"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay_a: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay_b: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { bw: 50, delay: "10ms", relay_delay: "20ms", loss: 0 }
+
+  # Late-join 5s fanout — H2
+  - id: "lldash-h2-late-join-5s"
+    topology: "fanout"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 5, bw: 20, delay: "10ms", loss: 0 }
+
+  # Late-join 5s fanout — H3
+  - id: "lldash-h3-late-join-5s"
+    topology: "fanout"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { num_subscribers: 2, late_sub_count: 1, late_join_delay_s: 5, bw: 20, delay: "10ms", loss: 0 }

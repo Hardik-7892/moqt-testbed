@@ -1,0 +1,125 @@
+name: "moq-vs-lldash"
+description: >
+  Head-to-head MoQ vs LL-DASH H2 vs LL-DASH H3 — same 120s 2sGOP/2s-seg sample_120s.mp4,
+  same impairments. decisions.md D8 triple under D13 bounds: stacks differ
+  (MoQ 4443/QUIC vs H2 443/TCP vs H3 443/QUIC — read Fig 6.7 as H2-vs-H3 =
+  transport, MoQ-vs-H3 = app semantics); H3 fallback labelled via fetch_protos
+  (never silent); MPD is control plane, media always via HTTP; MoQ bulk-push
+  vs DASH paced-sequential denominators differ — always read throughput with
+  completion_reason. Each impairment has MoQ / H2 / H3 rows.
+
+  B36 TAG NOTE: MoQ rows use Hub tags (0hardikpandey/moq-rs-*:18). Before
+  running on the VM, re-tag the local pin onto them:
+  `sudo docker tag moq-rs/relay:18 0hardikpandey/moq-rs-relay:18 &&
+   sudo docker tag moq-rs/client:18 0hardikpandey/moq-rs-client:18`
+  (batch run_20260906_224353 failed all 6 MoQ rows on this skew).
+  MoQ rows expect partial (B25 relay ceiling at ~11-16 KB on these media).
+
+media: "sample_120s.mp4"
+test_duration: 40
+require_integrity: true
+network_defaults: { bw: 100, delay: "10ms", loss: 0, max_queue_size: 1000 }
+
+runs:
+  # Clean — MoQ vs H2 vs H3
+  - id: "moq-clean"
+    expect: partial
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+  - id: "h2-clean"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+  - id: "h3-clean"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+
+  # Loss 1% — the critical HOL test
+  - id: "moq-loss1"
+    expect: partial
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { loss: 1 }
+  - id: "h2-loss1"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { loss: 1 }
+  - id: "h3-loss1"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { loss: 1 }
+
+  # BW 5 Mbps — bufferbloat / throughput
+  - id: "moq-bw5"
+    expect: partial
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { bw: 5 }
+  - id: "h2-bw5"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { bw: 5 }
+  - id: "h3-bw5"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { bw: 5 }
+
+  # Fanout N=3 H2/H3/MoQ — I14 fairness
+  - id: "moq-fanout-3"
+    expect: partial
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }
+  - id: "h2-fanout-3"
+    topology: "fanout"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }
+  - id: "h3-fanout-3"
+    topology: "fanout"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }
+
+  # 10s short media (sample.mp4, 5x2s segs) — quick triple + moq fanout sanity.
+  # Same stacks, smaller stream: isolates large-file effects (B25) from protocol.
+  - id: "moq-clean-10s"
+    expect: partial
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    media: "sample.mp4"
+    test_duration: 20
+  - id: "h2-clean-10s"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    media: "sample.mp4"
+    test_duration: 20
+  - id: "h3-clean-10s"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    media: "sample.mp4"
+    test_duration: 20
+  - id: "moq-fanout-10s"
+    expect: partial
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "0hardikpandey/moq-rs-client:18" }
+    media: "sample.mp4"
+    test_duration: 20
+    network: { num_subscribers: 3, bw: 20, delay: "10ms", loss: 0 }

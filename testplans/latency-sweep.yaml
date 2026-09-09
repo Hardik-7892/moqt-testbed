@@ -1,0 +1,228 @@
+name: "latency-sweep"
+description: >
+  Latency sweep across multiple topologies.
+  
+  WHY THIS TEST: RTT is a fundamental network characteristic that affects QUIC's
+  congestion control, loss recovery, and head-of-line blocking behavior. MoQ's
+  object delivery model means RTT directly impacts time-to-first-object and
+  end-to-end latency. Different topologies (basic, chain, fanout) exercise
+  different relay coordination paths under latency.
+  
+  WHAT IT TESTS:
+  - How MoQ delivery latency scales with RTT
+  - Whether QUIC's loss recovery degrades gracefully with RTT
+  - Chain topology: relay-to-relay coordination under latency
+  - Fanout topology: multi-subscriber delivery under latency
+  
+  DESIGN DECISIONS:
+  - Fixed bandwidth (50 Mbps) to isolate latency effects
+  - No loss to isolate latency from loss recovery
+  - 60s duration to allow multiple RTT cycles
+  - sample.mp4 (7.8KB) for fast iteration; can run bbb-video.mp4 for long-lived
+  - Tested across 3 topologies to see topology × latency interaction
+  
+  IMPLEMENTATIONS: moq-rs (primary), imquic (relay/sub), moxygen (relay)
+  - moq-rs: full pub/sub/relay support
+  - imquic: relay/sub only (no media pub)
+  - moxygen: relay only (FLV media, needs source build)
+  
+topology: "basic"
+network_defaults:
+  bw: 50
+  loss: 0
+  max_queue_size: 1000
+test_duration: 60
+media: "sample.mp4"
+runs:
+  - id: "lat-5ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "5ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-10ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "10ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-20ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-50ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "50ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-100ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "100ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-200ms-basic"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "200ms", loss: 0 }
+    expect: pass
+
+  # Phase 2 (P0-1): chain rows constrain the INTER-RELAY link via
+  # devices.relay_a (topologies/chain.py:84-86) — the sweep delay is applied to
+  # the relay-to-relay hop, not just the sub wire. relay_delay is inert while
+  # devices.relay_a is present, so it is omitted. Sub unlisted (-> CLEAN) to
+  # isolate the relay-to-relay hop.
+  - id: "lat-10ms-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      devices:
+        relay_a: { delay: "10ms" }
+    expect: pass
+
+  - id: "lat-50ms-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "50ms"
+      loss: 0
+      devices:
+        relay_a: { delay: "50ms" }
+    expect: pass
+
+  - id: "lat-100ms-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "100ms"
+      loss: 0
+      devices:
+        relay_a: { delay: "100ms" }
+    expect: pass
+
+  - id: "lat-10ms-fanout"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "10ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "lat-50ms-fanout"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "50ms"
+      loss: 0
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "lat-50ms-imquic-relay"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "50ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-50ms-moxygen-relay"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "50ms", loss: 0 }
+    expect: pass
+
+  - id: "lat-50ms-imquic-sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "50ms", loss: 0 }
+    expect: pass
+
+  # --- Per-impl self-paths: same sweep points, comparable across impls ---
+  - id: "lat-10ms-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "same-impl FLV baseline for cross-impl latency comparison"
+
+  - id: "lat-50ms-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "50ms", loss: 0 }
+    expect: pass
+    reason: "mvfst handshake/delivery under latency on the FLV self-path"
+
+  - id: "lat-100ms-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "100ms", loss: 0 }
+    expect: pass
+    reason: "mvfst handshake/delivery under latency on the FLV self-path"
+
+  - id: "lat-20ms-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 0 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic handshake under latency; scored on receipt, not bytes"
+
+  - id: "lat-100ms-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "100ms", loss: 0 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic handshake under latency; scored on receipt, not bytes"

@@ -1,0 +1,32 @@
+{
+  "run_id": "bufferbloat-q50",
+  "timestamp": "2026-09-08T15:58:58.034572+00:00",
+  "config": {
+    "id": "bufferbloat-q50",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/relay:18"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "network": {
+      "max_queue_size": 50
+    },
+    "topology": "basic"
+  },
+  "network": {
+    "bw": 5,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 50
+  }
+}

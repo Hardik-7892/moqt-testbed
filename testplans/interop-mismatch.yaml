@@ -1,0 +1,45 @@
+name: "interop-mismatch"
+description: >
+  True-negative controls (I1 confusion matrix). Each row pairs drafts that
+  share NO ALPN → handshake MUST fail cleanly. A failure here is a pass
+  for the testbed's failure detection; a surprising pass would reveal
+  unexpected compatibility or a weak check (B2).
+  Uses moq-rs tags only (both ends moq-rs so wire incompatibility is pure
+  protocol, not impl difference).
+  expect: fail = true negative (TN), expect: pass = true positive (TP).
+  At 2d16c9c8 pin: d16↔d18 is compatible (ALPN backwards-compat) → TP.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+runs:
+  - id: "mismatch-d14pub-d18relay"
+    pub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+
+  - id: "mismatch-d18pub-d14relay"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 14, tag: "moq-rs/relay:14" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+
+  - id: "mismatch-d14pub-d16relay"
+    pub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    relay: { impl: "moq-rs", draft: 16, tag: "moq-rs/relay:16" }
+    sub: { impl: "moq-rs", draft: 14, tag: "moq-rs/client:14" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: fail
+
+  - id: "mismatch-d16pub-d18relay"
+    pub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass

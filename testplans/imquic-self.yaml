@@ -1,0 +1,67 @@
+name: "imquic-self"
+description: >
+  imquic self-interop across every claimed draft (16/17/18/19): imquic demo
+  moq-pub (clock generator, one timestamp object/sec) -> unpinned imquic relay
+  -> imquic sub pinned '-M {draft}'. Because the pub is a clock generator its
+  payload is timestamps (no ftyp/FLV media magic), so this plan uses the
+  object_receipt data mode: delivery is scored on received "Incoming object:"
+  lines, and require_draft asserts the run's declared draft appears in the
+  relay's per-connection negotiation log (WebTransport (moqt-N)). The relay is
+  deliberately unpinned (per registry.json: pinning imquic-moq-relay to one
+  draft rejects moq-rs clients with close 271); pub+sub are both pinned so both
+  connections evidence the row's draft.
+topology: "basic"
+# Capture + SSLKEYLOGFILE (imquic -s) for wire-level RTT cross-check; the clock
+# streams are a few KB so pcaps are tiny.
+capture: true
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+# Non-media data mode: score on received object lines, not byte coverage.
+data_check: object_receipt
+min_objects: 1
+require_draft: true
+# Clock payloads are timestamps; a SHA-vs-sample.mp4 gate would be meaningless.
+require_integrity: false
+integrity_threshold: 0.0
+test_duration: 15
+runs:
+  - id: "imquic-self-d16"
+    pub: { impl: "imquic", draft: 16, tag: "imquic/cli:16" }
+    relay: { impl: "imquic", draft: 16, tag: "imquic/relay:16" }
+    sub: { impl: "imquic", draft: 16, tag: "imquic/cli:16" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-self-d17"
+    pub: { impl: "imquic", draft: 17, tag: "imquic/cli:17" }
+    relay: { impl: "imquic", draft: 17, tag: "imquic/relay:17" }
+    sub: { impl: "imquic", draft: 17, tag: "imquic/cli:17" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-self-d18"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  - id: "imquic-self-d19"
+    pub: { impl: "imquic", draft: 19, tag: "imquic/cli:19" }
+    relay: { impl: "imquic", draft: 19, tag: "imquic/relay:19" }
+    sub: { impl: "imquic", draft: 19, tag: "imquic/cli:19" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+
+  # Resilience floor: clock objects are tiny, so loss/latency rows measure
+  # negotiation + object delivery survival, not throughput.
+  - id: "imquic-self-d18-loss1pct"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+
+  - id: "imquic-self-d18-latency100ms"
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "100ms", loss: 0 }

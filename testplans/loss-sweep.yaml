@@ -1,0 +1,271 @@
+name: "loss-sweep"
+description: >
+  Packet loss sweep across multiple topologies to test QUIC loss recovery.
+  
+  WHY THIS TEST: Packet loss is the primary trigger for QUIC's loss recovery
+  mechanisms (RACK, FACK). MoQ's object delivery model means loss
+  directly impacts object delivery latency and completion. Different
+  topologies exercise different loss recovery paths.
+  
+  WHY THESE LOSS POINTS:
+  - 0%: Baseline
+  - 0.1%, 0.5%: Light loss, typical WiFi
+  - 1%, 2%: Moderate loss, typical cellular
+  - 5%, 10%: Heavy loss, tests QUIC limits
+  - 20%: Extreme loss, tests QUIC limits
+  
+  WHY THESE TOPOLOGIES:
+  - Basic: End-to-end loss recovery
+  - Chain: Relay-to-relay loss recovery + end-to-end
+  - Fanout: Multi-subscriber loss recovery + fairness
+  
+  DESIGN DECISIONS:
+  - Fixed 50 Mbps bandwidth (not the bottleneck)
+  - 20ms RTT (typical cross-region)
+  - 60s duration to allow multiple loss events
+  - bbb-video.mp4 for sustained transfer
+  
+  IMPLEMENTATIONS: moq-rs (primary), imquic (relay/sub), moxygen (relay)
+  
+topology: "basic"
+network_defaults:
+  bw: 50
+  delay: "20ms"
+  max_queue_size: 1000
+test_duration: 60
+media: "bbb-video.mp4"
+runs:
+  - id: "loss-0pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 0 }
+    expect: pass
+
+  - id: "loss-0.1pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 0.1 }
+    expect: pass
+
+  - id: "loss-0.5pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 0.5 }
+    expect: pass
+
+  - id: "loss-1pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: pass
+
+  - id: "loss-2pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 2 }
+    expect: pass
+
+  - id: "loss-5pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }
+    expect: pass
+
+  - id: "loss-10pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 10 }
+    expect: partial
+
+  - id: "loss-20pct-moqrs"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 20 }
+    expect: partial
+
+  # Phase 2 (P0-1): chain rows constrain the INTER-RELAY link via
+  # devices.relay_a (topologies/chain.py:84-86) — sweep loss hits the
+  # relay-to-relay hop, not just the sub wire. Sub unlisted (-> CLEAN) to
+  # isolate the relay-to-relay hop. relay_delay omitted (inert while
+  # devices.relay_a is present); inter-relay delay = top-level delay (20ms).
+  - id: "loss-1pct-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 1
+      devices:
+        relay_a: { loss: 1 }
+    expect: pass
+
+  - id: "loss-5pct-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 5
+      devices:
+        relay_a: { loss: 5 }
+    expect: partial
+
+  - id: "loss-10pct-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 10
+      devices:
+        relay_a: { loss: 10 }
+    expect: partial
+
+  - id: "loss-1pct-fanout-3sub"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "loss-5pct-fanout-3sub"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 5
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: partial
+
+  # Phase 2 (P0-2): devices.sub{i} = INDEPENDENT per-subscriber last-mile
+  # shapers, not a shared bottleneck. Shared-egress approx: fairness.yaml.
+  - id: "loss-1pct-fanout-3sub-asymmetric"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      bw: 50
+      delay: "20ms"
+      loss: 1
+      max_queue_size: 1000
+      num_subscribers: 3
+      devices:
+        sub1: { bw: 5 }
+        sub2: { bw: 5 }
+        sub3: { bw: 5 }
+    expect: pass
+
+  - id: "loss-1pct-imquic-relay"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: partial
+
+  - id: "loss-1pct-imquic-sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: partial
+
+  - id: "loss-1pct-moxygen-relay"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: partial
+
+  - id: "loss-1pct-moxygen-relay-imquic-sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: partial
+
+  # --- Per-impl self-paths: same sweep points, comparable across impls ---
+  # moxygen self on short FLV media (no BBB dependency).
+  - id: "loss-0pct-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 0 }
+    expect: pass
+    reason: "same-impl FLV baseline for cross-impl loss comparison"
+
+  - id: "loss-1pct-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    expect: pass
+    reason: "mvfst QUIC loss recovery on the FLV self-path"
+
+  - id: "loss-5pct-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }
+    expect: pass
+    reason: "mvfst QUIC loss recovery on the FLV self-path; 5% must degrade, not kill"
+
+  # imquic self on clock objects (object_receipt mode): loss survival floor.
+  - id: "loss-1pct-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 1 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic loss recovery on timestamp objects; scored on receipt, not bytes"
+
+  - id: "loss-5pct-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { bw: 50, delay: "20ms", loss: 5 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic loss recovery on timestamp objects; scored on receipt, not bytes"

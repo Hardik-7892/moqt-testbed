@@ -1,0 +1,21 @@
+name: "lldash-h2"
+description: "LL-DASH H2 only — TCP baseline"
+media: "sample_120s.mp4"
+test_duration: 40
+require_integrity: true
+network_defaults: { bw: 100, delay: "10ms", loss: 0, max_queue_size: 1000 }
+runs:
+  - id: "lldash-h2-clean"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+  - id: "lldash-h2-loss1"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { loss: 1 }
+  - id: "lldash-h2-bw5"
+    pub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    relay: { impl: "lldash-h2", tag: "0hardikpandey/lldash-origin-h2:latest" }
+    sub: { impl: "lldash-h2", tag: "0hardikpandey/lldash-client-h2:latest" }
+    network: { bw: 5 }

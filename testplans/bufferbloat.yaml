@@ -1,0 +1,46 @@
+name: "bufferbloat"
+description: >
+  Bufferbloat sweep: sweep max_queue_size on the subscriber access link
+  while holding bandwidth fixed (5 Mbps). Measures the classic bufferbloat
+  signature: throughput stays flat while RTT/latency inflates by orders
+  of magnitude. This demonstrates why speed tests mislead for live media.
+topology: "basic"
+capture: true
+network_defaults:
+  bw: 5
+  delay: "10ms"
+  loss: 0
+test_duration: 30
+media: "sample.mp4"
+runs:
+  # Small queue (10 packets ≈ 15 KB at 5 Mbps = ~24 ms buffer)
+  - id: "bufferbloat-q10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 10
+
+  # Medium-small queue (50 packets)
+  - id: "bufferbloat-q50"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 50
+
+  # Medium queue (200 packets)
+  - id: "bufferbloat-q200"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 200
+
+  # Large queue (1000 packets = default, ~2 sec at 5 Mbps)
+  - id: "bufferbloat-q1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 1000

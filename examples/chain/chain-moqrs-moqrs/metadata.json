@@ -1,0 +1,35 @@
+{
+  "run_id": "chain-moqrs-moqrs",
+  "timestamp": "2026-09-08T17:00:43.685132+00:00",
+  "config": {
+    "id": "chain-moqrs-moqrs",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "relay_a": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/relay:18"
+    },
+    "relay_b": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/relay:18"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "topology": "chain"
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "relay_delay": "20ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  }
+}

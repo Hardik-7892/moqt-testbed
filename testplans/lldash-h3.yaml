@@ -1,0 +1,21 @@
+name: "lldash-h3"
+description: "LL-DASH H3 only — QUIC baseline"
+media: "sample_120s.mp4"
+test_duration: 40
+require_integrity: true
+network_defaults: { bw: 100, delay: "10ms", loss: 0, max_queue_size: 1000 }
+runs:
+  - id: "lldash-h3-clean"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+  - id: "lldash-h3-loss1"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { loss: 1 }
+  - id: "lldash-h3-bw5"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { bw: 5 }

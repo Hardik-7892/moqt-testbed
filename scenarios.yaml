@@ -1,0 +1,57 @@
+# Network impairment profiles for tc/netem
+# Reference these in topology.yaml link definitions or in test plan runs.
+
+profiles:
+  clean:
+    bw: 100
+    delay: "10ms"
+    loss: 0
+    max_queue_size: 1000
+
+  low_latency:
+    bw: 100
+    delay: "5ms"
+    loss: 0
+    max_queue_size: 1000
+
+  high_latency:
+    bw: 100
+    delay: "100ms"
+    loss: 0
+    max_queue_size: 1000
+
+  lossy_1pct:
+    bw: 100
+    delay: "20ms"
+    loss: 1
+    max_queue_size: 1000
+
+  lossy_5pct:
+    bw: 100
+    delay: "20ms"
+    loss: 5
+    max_queue_size: 1000
+
+  lossy_10pct:
+    bw: 100
+    delay: "20ms"
+    loss: 10
+    max_queue_size: 1000
+
+  bw_limited_5mbps:
+    bw: 5
+    delay: "10ms"
+    loss: 0
+    max_queue_size: 1000
+
+  bw_limited_2mbps:
+    bw: 2
+    delay: "10ms"
+    loss: 0
+    max_queue_size: 1000
+
+  constrained:
+    bw: 50
+    delay: "50ms"
+    loss: 0.5
+    max_queue_size: 1000

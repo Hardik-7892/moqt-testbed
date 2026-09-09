@@ -1,0 +1,256 @@
+name: "queue-sweep"
+description: >
+  Queue size sweep across multiple topologies to measure bufferbloat impact.
+  
+  WHY THIS TEST: Queue size (bufferbloat) is a critical but often overlooked
+  network parameter. Large queues absorb bursts but add latency (bufferbloat).
+  Small queues drop packets early, triggering QUIC loss recovery. The optimal
+  queue size depends on bandwidth-delay product (BDP).
+  
+  WHY THESE QUEUE SIZES (at 5 Mbps, 20ms RTT, BDP ~12.5 KB ~8 packets):
+  - 10 packets: Below BDP, early drops, high loss
+  - 20 packets: ~BDP, balanced
+  - 50 packets: 2.5x BDP, mild bufferbloat
+  - 100 packets: 5x BDP, significant bufferbloat
+  - 200 packets: 10x BDP, severe bufferbloat
+  - 500 packets: 25x BDP, extreme bufferbloat
+  - 1000 packets: Default, extreme bufferbloat
+  
+  WHY THESE TOPOLOGIES:
+  - Basic: End-to-end bufferbloat
+  - Chain: Per-hop bufferbloat + inter-relay queue
+  - Fanout: Multi-subscriber queue fairness
+  
+  DESIGN DECISIONS:
+  - Fixed 5 Mbps bandwidth (creates clear BDP)
+  - 20ms RTT (typical cross-region)
+  - 60s duration for queue dynamics to stabilize
+  - sample.mp4 for fast iteration
+  
+  IMPLEMENTATIONS: moq-rs (primary)
+  
+topology: "basic"
+network_defaults:
+  bw: 5
+  delay: "20ms"
+  loss: 0
+test_duration: 60
+media: "sample.mp4"
+runs:
+  - id: "queue-10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 10 }
+    expect: partial
+
+  - id: "queue-20"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 20 }
+    expect: pass
+
+  - id: "queue-50"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 50 }
+    expect: pass
+
+  - id: "queue-100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 100 }
+    expect: pass
+
+  - id: "queue-200"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 200 }
+    expect: pass
+
+  - id: "queue-500"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 500 }
+    expect: pass
+
+  - id: "queue-1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { max_queue_size: 1000 }
+    expect: pass
+
+  # Phase 2 validity limit: max_queue_size is applied to pub/sub wires ONLY
+  # (harness/runner.py:1277 — __inter_relay__ is not in client_roles(), so the
+  # inter-relay link keeps TCLink-default queue, uncontrolled). These chain rows
+  # therefore measure END-TO-END bufferbloat with per-hop relay_delay, not
+  # "per-hop bufferbloat + inter-relay queue". Inter-relay queue control is
+  # future work (see 2_weeks/01-future-work-quarantine.md).
+  - id: "queue-10-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 10
+      relay_delay: "20ms"
+    expect: partial
+
+  - id: "queue-100-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 100
+      relay_delay: "20ms"
+    expect: pass
+
+  - id: "queue-1000-chain"
+    topology: "chain"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay_a: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    relay_b: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 1000
+      relay_delay: "20ms"
+    expect: pass
+
+  - id: "queue-10-fanout"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 10
+      num_subscribers: 3
+    expect: partial
+
+  - id: "queue-100-fanout"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 100
+      num_subscribers: 3
+    expect: pass
+
+  - id: "queue-1000-fanout"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network:
+      max_queue_size: 1000
+      num_subscribers: 3
+    expect: pass
+
+  - id: "bw5-queue10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, max_queue_size: 10 }
+    expect: partial
+
+  - id: "bw5-queue100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, max_queue_size: 100 }
+    expect: pass
+
+  - id: "bw5-queue1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 5, max_queue_size: 1000 }
+    expect: pass
+
+  - id: "bw50-queue10"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, max_queue_size: 10 }
+    expect: partial
+
+  - id: "bw50-queue100"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, max_queue_size: 100 }
+    expect: pass
+
+  - id: "bw50-queue1000"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 50, max_queue_size: 1000 }
+    expect: pass
+
+  # --- Per-impl self-paths: same sweep points, comparable across impls ---
+  # Bufferbloat signature per stack: throughput flat while RTT inflates.
+  - id: "queue-10-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { max_queue_size: 10 }
+    expect: pass
+    reason: "same-impl FLV baseline for cross-impl queue comparison"
+
+  - id: "queue-100-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { max_queue_size: 100 }
+    expect: pass
+    reason: "mvfst bufferbloat response on the FLV self-path"
+
+  - id: "queue-1000-moxygen-self"
+    media: "sample.flv"
+    test_duration: 20
+    pub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    relay: { impl: "moxygen", draft: 18, tag: "moxygen/relay:18" }
+    sub: { impl: "moxygen", draft: 18, tag: "moxygen/client:18" }
+    network: { max_queue_size: 1000 }
+    expect: pass
+    reason: "mvfst bufferbloat response on the FLV self-path"
+
+  - id: "queue-100-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { max_queue_size: 100 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic delivery with a small queue; scored on receipt, not bytes"
+
+  - id: "queue-1000-imquic-self"
+    test_duration: 20
+    pub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    relay: { impl: "imquic", draft: 18, tag: "imquic/relay:18" }
+    sub: { impl: "imquic", draft: 18, tag: "imquic/cli:18" }
+    network: { max_queue_size: 1000 }
+    data_check: object_receipt
+    min_objects: 1
+    require_draft: true
+    require_integrity: false
+    expect: pass
+    reason: "picoquic delivery with a deep queue; scored on receipt, not bytes"
