@@ -1,0 +1,27 @@
+name: "sha-single"
+description: >
+  SINGLE-ROW iteration plan for the SHA-exactness fix (file: analysis/
+  classify_mismatch.py Step 1). Mirrors interop-quick.yaml moqrs-d18-baseline
+  exactly (same impls, tags, media, network) plus require_integrity:true so the
+  signal is binary: mismatch->fail today, exact->pass after the fix. One row,
+  ~30 s wall. Do NOT extend this file — full matrices run only after 1 SHA
+  match (see dissertation_research/16 §16.5). sample_1seg.mp4 is single-segment
+  specifically because multi-segment sample.mp4 cannot be archive-caught-up at
+  this pin (found-bugs.md B45); keep it.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 15
+require_integrity: true
+runs:
+  - id: "moqrs-d18-baseline"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { bw: 100, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "SHA-exactness iteration row: currently fail/mismatch (permuted capture); flips to pass/exact iff the fix works"

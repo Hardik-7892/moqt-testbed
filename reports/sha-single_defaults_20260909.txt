@@ -1,0 +1,10 @@
+Plan: sha-single
+Total: 1
+Pass:  1
+Partial: 0
+Fail:  0
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+moqrs-d18-baseline                                           pass       21043/21110 (99.68%) [100.0% exp] good 99.28%            10.3         quiesced              
+    sub: artifact=20892 B, media=20892 B, mlog=21043, prefix=99.28%, verdict=good

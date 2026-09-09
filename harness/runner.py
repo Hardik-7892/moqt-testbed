@@ -58,6 +58,42 @@ TESTDATA_DIR = BASE_DIR / "testdata"
 CONTAINER_RELAY_PORT = 4443
 
 
+def _env_float(name: str, default: float) -> float:
+    """Read a positive float env override, falling back to default.
+
+    Follows the MOQ_FAST_IO precedent: env-gated experiment knobs that
+    leave historic defaults frozen (comparability with old batches).
+    Unparseable/non-positive values fall back to default (loud at use).
+    """
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        val = float(raw)
+    except ValueError:
+        print(f"WARN: {name}={raw!r} unparseable, using default {default}")
+        return default
+    if val <= 0:
+        print(f"WARN: {name}={raw!r} not positive, using default {default}")
+        return default
+    return val
+
+
+def _teardown_order() -> str:
+    """Teardown kill order probe (see MoQTestRun teardown).
+
+    Default pub-first is B37 (kill pub, relay drains, sub exits on stream
+    end). relay-first kills the RELAY instead so the subscriber sees
+    connection-close and -- hypothesis -- exits cleanly with full stdout
+    flush. Unknown values fall back to pub-first (loud).
+    """
+    order = os.environ.get("MOQ_TEARDOWN_ORDER", "pub-first").strip()
+    if order not in ("pub-first", "relay-first"):
+        print(f"WARN: MOQ_TEARDOWN_ORDER={order!r} unknown, using pub-first")
+        return "pub-first"
+    return order
+
+
 def load_testplan(path: str) -> Dict[str, Any]:
     with open(path) as f:
         return yaml.safe_load(f)
@@ -180,6 +216,24 @@ class MoQTestRun:
         self.processes: List[Any] = []
         self.result: Dict[str, Any] = {}
         self._stop_event = threading.Event()
+        # SHA-exactness drain probe (Step 4): env overrides for teardown
+        # timing so the class-level defaults (STOP_GRACE_S/STOP_DRAIN_S)
+        # stay frozen for every other plan. MOQ_STOP_GRACE_S (default 3.0),
+        # MOQ_STOP_DRAIN_S (default 12.0). Loud when active (FAST_IO rule:
+        # a silent miss, e.g. sudo dropping env, must never look staged).
+        self.stop_grace_s = _env_float("MOQ_STOP_GRACE_S", self.STOP_GRACE_S)
+        self.stop_drain_s = _env_float("MOQ_STOP_DRAIN_S", self.STOP_DRAIN_S)
+        self.teardown_order = _teardown_order()
+        if (self.stop_grace_s != self.STOP_GRACE_S
+                or self.stop_drain_s != self.STOP_DRAIN_S
+                or self.teardown_order != "pub-first"):
+            # Loud by design (see FAST_IO above): default timing must be
+            # distinguishable from probe timing in every log.
+            self._log(f"DRAIN-PROBE timing active: grace={self.stop_grace_s}s "
+                      f"(default {self.STOP_GRACE_S}s), "
+                      f"drain={self.stop_drain_s}s "
+                      f"(default {self.STOP_DRAIN_S}s), "
+                      f"order={self.teardown_order} (default pub-first)")
         # B13 (see found-bugs.md): completion detection. Set by
         # _wait_for_completion: completed=True when the received artifact
         # stopped growing before the test_duration cap; completion_reason says
@@ -676,6 +730,28 @@ class MoQTestRun:
         if mismatches:
             raise RuntimeError("Image tag skew detected (B36):\n  " + "\n  ".join(mismatches))
 
+    def _drain_artifact(self, paths, logs_on_stdout, last, bytes_at_stop,
+                        tag):
+        """Shared post-kill drain loop for both teardown orders.
+
+        Polls the artifact until it stops growing or stop_drain_s elapses.
+        Returns the final byte count. Identical semantics for pub-first and
+        relay-first; only the triggering kill (and hence the tag) differs.
+        """
+        drain_deadline = time.time() + self.stop_drain_s
+        while time.time() < drain_deadline:
+            time.sleep(1.0)
+            cur = MoQTestRun._total_media_bytes(paths, logs_on_stdout)
+            if cur == last:
+                break
+            last = cur
+            self._log(f"{tag} drain: artifact at {last} B")
+        recovered = last - bytes_at_stop
+        if recovered > 0:
+            self._log(f"Teardown recovered {recovered} byte(s) "
+                      f"post-quiesce (final {last} B) [{tag}]")
+        return last
+
     def _execute_test(self):
         self._cleanup_stale_containers()
         self._verify_image_tags()
@@ -1125,7 +1201,7 @@ class MoQTestRun:
             for host in net.hosts:
                 if str(getattr(host, "name", "")).startswith("sub"):
                     host.cmd(f"pkill -INT -f '{sub_pats}' 2>/dev/null || true")
-            time.sleep(self.STOP_GRACE_S)
+            time.sleep(self.stop_grace_s)
             bytes_after_grace = MoQTestRun._total_media_bytes(paths, logs_on_stdout)
             delta = bytes_after_grace - bytes_at_stop
             if delta > 0:
@@ -1139,23 +1215,32 @@ class MoQTestRun:
             # B37: stop the PUBLISHER next and give the relay+sub a drain
             # window -- stream end should make the subscriber exit normally
             # (full stdout flush) instead of being murdered mid-buffer.
-            pub_host = self.hosts.get("pub")
-            if pub_host is not None:
-                pub_host.cmd("pkill -f 'moq-pub|imquic-moq-pub|"
-                             "moqflvstreamer' 2>/dev/null || true")
-                drain_deadline = time.time() + self.STOP_DRAIN_S
-                last = bytes_after_grace
-                while time.time() < drain_deadline:
-                    time.sleep(1.0)
-                    cur = MoQTestRun._total_media_bytes(paths, logs_on_stdout)
-                    if cur == last:
-                        break
-                    last = cur
-                    self._log(f"post-pub drain: artifact at {last} B")
-                recovered = last - bytes_at_stop
-                if recovered > 0:
-                    self._log(f"Teardown recovered {recovered} byte(s) "
-                              f"post-quiesce (final {last} B)")
+            # MOQ_TEARDOWN_ORDER=relay-first probe: kill the RELAY instead,
+            # so the subscriber sees connection-close/stream-end and --
+            # hypothesis -- exits cleanly with full flush. The drain loop is
+            # shared; only which process dies first changes.
+            if self.teardown_order == "relay-first":
+                for host in net.hosts:
+                    if str(getattr(host, "name", "")).startswith("relay"):
+                        host.cmd("pkill -f 'moq-relay|moqrelay|imquic-moq-relay'"
+                                 " 2>/dev/null || true")
+                self._log("relay-first teardown: relay stopped, waiting "
+                          "for clean sub exit + flush ...")
+                last = self._drain_artifact(paths, logs_on_stdout,
+                                            bytes_after_grace, bytes_at_stop,
+                                            "relay-close")
+                pub_host = self.hosts.get("pub")
+                if pub_host is not None:
+                    pub_host.cmd("pkill -f 'moq-pub|imquic-moq-pub|"
+                                 "moqflvstreamer' 2>/dev/null || true")
+            else:
+                pub_host = self.hosts.get("pub")
+                if pub_host is not None:
+                    pub_host.cmd("pkill -f 'moq-pub|imquic-moq-pub|"
+                                 "moqflvstreamer' 2>/dev/null || true")
+                    last = self._drain_artifact(paths, logs_on_stdout,
+                                                bytes_after_grace,
+                                                bytes_at_stop, "post-pub")
             for host in net.hosts:
                 host.cmd("pkill -f tcpdump 2>/dev/null || true")
                 host.cmd("pkill -f moq-relay 2>/dev/null || true")
@@ -1337,6 +1422,19 @@ class MoQTestRun:
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "config": self.config,
             "network": self.network,
+            # Provenance for teardown-timing probes: without this, a later
+            # reader cannot tell default timing from an env override (the
+            # loud DRAIN-PROBE log line lives only on the runner console,
+            # which is not archived per-run).
+            "teardown": {
+                "stop_grace_s": getattr(self, "stop_grace_s",
+                                        self.STOP_GRACE_S),
+                "stop_grace_default_s": self.STOP_GRACE_S,
+                "stop_drain_s": getattr(self, "stop_drain_s",
+                                        self.STOP_DRAIN_S),
+                "stop_drain_default_s": self.STOP_DRAIN_S,
+                "order": getattr(self, "teardown_order", "pub-first"),
+            },
         }
         with open(self.run_dir / "metadata.json", "w") as f:
             json.dump(meta, f, indent=2)
