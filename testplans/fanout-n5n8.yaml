@@ -1,0 +1,46 @@
+name: "fanout-n5n8"
+description: >
+  Fanout scale extension N=5 then N=8 — moq-rs d18 clean plus loss1 probe.
+  Same verdict rule as fanout.yaml (per-sub hash+prefix, worst sets verdict).
+  Short sample.mp4 (10s) + 20s duration to keep unattended repeats cheap.
+  Independent last-miles (per-viewer shapers), NOT a shared bottleneck.
+  Cite artifact bytes, never relay throughput (B38 restart inflation).
+topology: "fanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 20
+runs:
+  - id: "fanout-moqrs-5sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 5 }
+    expect: pass
+    reason: "N=5 scale step beyond thesis N=3; worst-viewer verdict"
+
+  - id: "fanout-moqrs-8sub"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 8 }
+    expect: pass
+    reason: "N=8 only attempted if N=5 stable; 10 containers, VM pressure probe"
+
+  - id: "fanout-moqrs-5sub-loss1pct"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 5, bw: 50, delay: "20ms", loss: 1 }
+    expect: pass
+    reason: "N=5 under loss1; compare vs basic loss-1pct-moqrs holds"
+
+  - id: "fanout-h3-5sub"
+    pub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    relay: { impl: "lldash-h3", tag: "0hardikpandey/lldash-origin-h3:latest" }
+    sub: { impl: "lldash-h3", tag: "0hardikpandey/lldash-client-h3:latest" }
+    network: { num_subscribers: 5, bw: 20, delay: "10ms", loss: 0 }
+    expect: pass
+    reason: "H3 N=5 Jain=1.0 control for MoQ N=5 fairness comparison"

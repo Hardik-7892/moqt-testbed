@@ -1,0 +1,26 @@
+[2m2026-09-10T20:16:57.258223Z[0m [32m INFO[0m [2mmoq_native_ietf::quic[0m[2m:[0m UDP socket bound [3mbind[0m[2m=[0m[::]:0 [3mlocal[0m[2m=[0m[::]:55811 [3mdual_stack[0m[2m=[0mtrue
+[2m2026-09-10T20:16:57.262765Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connecting to relay: url=https://10.0.0.2:4443/
+[2m2026-09-10T20:16:57.320000Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connected with CID: 920db56f05ee946c5454f188f4c853e8 (use this to look up qlog/mlog on server)
+[2m2026-09-10T20:16:57.352687Z[0m [32m INFO[0m [2mmoq_pub::media[0m[2m:[0m catalog: {
+  "version": 1,
+  "streamingFormat": 1,
+  "streamingFormatVersion": "0.2",
+  "supportsDeltaUpdates": true,
+  "commonTrackFields": {
+    "namespace": "/d16-basic-1seg",
+    "packaging": "cmaf",
+    "renderGroup": 1
+  },
+  "tracks": [
+    {
+      "name": "1.m4s",
+      "initTrack": "0.mp4",
+      "selectionParams": {
+        "codec": "avc1.42C00D",
+        "width": 320,
+        "height": 240
+      }
+    }
+  ]
+}
+timestamp: 0 segment: 0:0 priority: 127

@@ -1,0 +1,32 @@
+Plan: lldash-baseline
+Total: 8
+Pass:  8
+Partial: 0
+Fail:  0
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+lldash-h2-basic-clean                                        pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-basic-clean                                        pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h2-fanout-3                                           pass       2722191/904457 (300.98%) [full 3/3] sha match              -            quiesced              
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub3: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-fanout-3                                           pass       2722191/904457 (300.98%) [full 3/3] sha match              -            quiesced              
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub3: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h2-chain                                              pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-chain                                              pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h2-late-join-5s                                       pass       2692195/904457 (297.66%) [full 3/3] good 100.0%            -            quiesced              
+    late_sub1: artifact=877401 B, media=877401 B, mlog=-, prefix=100.0%, verdict=good
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-late-join-5s                                       pass       2692195/904457 (297.66%) [full 3/3] good 100.0%            -            quiesced              
+    late_sub1: artifact=877401 B, media=877401 B, mlog=-, prefix=100.0%, verdict=good
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact

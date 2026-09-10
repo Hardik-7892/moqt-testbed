@@ -1,0 +1,9 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+moqrs-d18-baseline,1,pass,good,283507.0,283507.0,1,11.1001,11.1001,1,1,0.997796,,,0,282781.5789473684,282781.5789473684,1
+moqrs-loss1pct,1,pass,good,283507.0,283507.0,1,10.8759,10.8759,1,1,0.997796,,,0,282781.5789473684,282781.5789473684,1
+moqrs-loss5pct,1,pass,good,283507.0,283507.0,1,7.5779,7.5779,1,1,0.997796,,,0,282781.5789473684,282781.5789473684,1
+moqrs-pub-imquic-relay-imquic-sub-d18-baseline,1,fail,mismatch,590.0,590.0,1,34.462,34.462,1,1,0.010281,,,0,590.8183632734531,590.8183632734531,1
+moqrs-pub-moqrs-relay-imquic-sub,1,fail,mismatch,739.0,739.0,1,30.7878,30.7878,1,1,0.012874,,,0,739.853626081171,739.853626081171,1
+moqrs-pub-moxygen-relay-imquic-sub,1,fail,mismatch,443.0,443.0,1,,,0,1,0.007715,,,0,443.6750998668442,443.6750998668442,1
+moxygen-d18-baseline,1,partial,mismatch,1719713.0,1719713.0,1,,,0,1,0.026962,,,0,1719713.425016372,1719713.425016372,1
+moxygen-pub-imquic-relay-moqrs-sub,1,fail,mismatch,0.0,0.0,1,35.354,35.354,1,1,0.0,,,0,,,0

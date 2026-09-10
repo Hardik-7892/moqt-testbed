@@ -1,0 +1,5 @@
+[2m2026-09-10T20:23:37.774139Z[0m [32m INFO[0m [2mmoq_native_ietf::quic[0m[2m:[0m UDP socket bound [3mbind[0m[2m=[0m[::]:0 [3mlocal[0m[2m=[0m[::]:37026 [3mdual_stack[0m[2m=[0mtrue
+[2m2026-09-10T20:23:37.879759Z[0m [32m INFO[0m [2mmoq_sub[0m[2m:[0m connected with CID: 2b0ff119e9ad1d5f2f3704425cc3cb2e (use this to look up qlog/mlog on server)
+[2m2026-09-10T20:23:37.944863Z[0m [32m INFO[0m [2mmoq_sub::media[0m[2m:[0m found track 1.m4s
+[2m2026-09-10T20:23:37.945883Z[0m [32m INFO[0m [2mmoq_sub::media[0m[2m:[0m using 1.m4s for video
+[2m2026-09-10T20:23:37.947931Z[0m [32m INFO[0m [2mmoq_sub::media[0m[2m:[0m playing 1 tracks

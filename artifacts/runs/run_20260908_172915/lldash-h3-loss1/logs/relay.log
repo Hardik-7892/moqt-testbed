@@ -1,0 +1,18 @@
+relay started
+{"level":"info","ts":1788888607.6826606,"msg":"maxprocs: Leaving GOMAXPROCS=6: CPU quota undefined"}
+{"level":"info","ts":1788888607.6839426,"msg":"GOMEMLIMIT is updated","GOMEMLIMIT":8896842547,"previous":9223372036854775807}
+{"level":"info","ts":1788888607.6846647,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+{"level":"info","ts":1788888607.6850498,"msg":"adapted config to JSON","adapter":"caddyfile"}
+{"level":"info","ts":1788888607.693,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//[::1]:2019","//127.0.0.1:2019","//localhost:2019"]}
+{"level":"info","ts":1788888607.6951222,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x239f75736500"}
+{"level":"info","ts":1788888607.707529,"logger":"http.auto_https","msg":"enabling automatic HTTP->HTTPS redirects","server_name":"srv0"}
+{"level":"warn","ts":1788888607.7076116,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"srv1","http_port":80}
+{"level":"info","ts":1788888607.708889,"logger":"http","msg":"enabling HTTP/3 listener","addr":":443"}
+{"level":"info","ts":1788888607.7133698,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+{"level":"warn","ts":1788888607.715062,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+{"level":"warn","ts":1788888607.7155383,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+{"level":"info","ts":1788888607.7156026,"logger":"http.log","msg":"server running","name":"srv1","protocols":["h1","h2","h3"]}
+{"level":"info","ts":1788888607.7160537,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+{"level":"info","ts":1788888607.717442,"msg":"serving initial configuration"}
+{"level":"info","ts":1788888607.725526,"logger":"tls","msg":"storage cleaning happened too recently; skipping for now","storage":"FileStorage:/data/caddy","instance":"1d68a328-0491-4627-943e-fc4faf520304","try_again":1788975007.7255232,"try_again_in":86399.999999619}
+{"level":"info","ts":1788888607.7287478,"logger":"tls","msg":"finished cleaning storage units"}

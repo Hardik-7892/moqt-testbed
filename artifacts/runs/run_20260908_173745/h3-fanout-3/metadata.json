@@ -1,0 +1,34 @@
+{
+  "run_id": "h3-fanout-3",
+  "timestamp": "2026-09-08T17:45:50.951437+00:00",
+  "config": {
+    "id": "h3-fanout-3",
+    "topology": "fanout",
+    "pub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "relay": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "sub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-client-h3:latest"
+    },
+    "network": {
+      "num_subscribers": 3,
+      "bw": 20,
+      "delay": "10ms",
+      "loss": 0
+    },
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 20,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "num_subscribers": 3
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "run_id": "lldash-h3-loss1",
+  "timestamp": "2026-09-08T17:29:54.686212+00:00",
+  "config": {
+    "id": "lldash-h3-loss1",
+    "pub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "relay": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "sub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-client-h3:latest"
+    },
+    "network": {
+      "loss": 1
+    },
+    "topology": "basic",
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 1,
+    "max_queue_size": 1000
+  }
+}

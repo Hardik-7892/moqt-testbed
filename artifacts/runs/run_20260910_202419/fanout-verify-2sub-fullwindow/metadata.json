@@ -1,0 +1,46 @@
+{
+  "run_id": "fanout-verify-2sub-fullwindow",
+  "timestamp": "2026-09-10T20:24:20.049760+00:00",
+  "config": {
+    "id": "fanout-verify-2sub-fullwindow",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/relay:18"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "moq-rs/client:18"
+    },
+    "network": {
+      "num_subscribers": 2,
+      "quiet_period": 9999
+    },
+    "expect": "fail",
+    "reason": "worst-subscriber referee check: 1/2 served must read fail",
+    "topology": "fanout"
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "num_subscribers": 2,
+    "quiet_period": 9999
+  },
+  "teardown": {
+    "stop_grace_s": 3.0,
+    "stop_grace_default_s": 3.0,
+    "stop_drain_s": 12.0,
+    "stop_drain_default_s": 12.0,
+    "order": "pub-first"
+  },
+  "launch_order": "pub-first",
+  "pub_delay_s": 0.0
+}

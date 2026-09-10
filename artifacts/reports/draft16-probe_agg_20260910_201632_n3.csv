@@ -1,0 +1,4 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+d16-basic-1seg,3,pass+pass+pass,good+good+good,55928.0,56095.4,3,13.4448,38.34438,3,3,0.996826,,,0,55526.91029900333,55693.49102990033,3
+d16-fanout-2sub-1seg,3,pass+pass+pass,mismatch+good+mismatch,26396.0,26812.7,3,10.041,27.36321,3,3,3.987305,1.0,1.0,3,13317.609561752988,13331.952420076375,3
+d16-fanout-2sub-mirror,3,partial+partial+partial,mismatch+mismatch+mismatch,14561.0,14649.2,3,57.0406,57.0406,3,3,0.42667,1.0,1.0,3,7106.124061635717,7149.371356044239,3

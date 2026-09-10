@@ -1,0 +1,14 @@
+Plan: lldash-h3
+Total: 3
+Pass:  3
+Partial: 0
+Fail:  0
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+lldash-h3-clean                                              pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-loss1                                              pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+lldash-h3-bw5                                                pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact

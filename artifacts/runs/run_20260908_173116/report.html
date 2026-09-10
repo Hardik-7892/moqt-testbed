@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MoQT Test Report - lldash-baseline</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --pass: #2e7d32;
+  --pass-bg: #e8f5e9;
+  --partial: #f57f17;
+  --partial-bg: #fff8e1;
+  --fail: #c62828;
+  --fail-bg: #fbe9e7;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card-bg: #ffffff;
+  --header-bg: #f9fafb;
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #f3f4f6; color: var(--text); line-height: 1.5; }
+.container { max-width: 1400px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.header h1 { margin: 0; font-size: 1.75rem; font-weight: 600; }
+.header .meta { color: var(--muted); font-size: 0.875rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.stat-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+.stat-card .value { font-size: 2rem; font-weight: 700; }
+.stat-card.pass .value { color: var(--pass); }
+.stat-card.partial .value { color: var(--partial); }
+.stat-card.fail .value { color: var(--fail); }
+.stat-card.total .value { color: var(--text); }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--header-bg); font-weight: 600; }
+.card-body { padding: 20px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: var(--header-bg); font-weight: 600; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+.badge-pass { background: var(--pass-bg); color: var(--pass); }
+.badge-partial { background: var(--partial-bg); color: var(--partial); }
+.badge-fail { background: var(--fail-bg); color: var(--fail); }
+.badge-unknown { background: var(--border); color: var(--muted); }
+.network-badge { display: inline-flex; gap: 8px; font-size: 0.75rem; color: var(--muted); }
+.network-badge span { background: var(--header-bg); padding: 2px 8px; border-radius: 4px; font-family: monospace; }
+.chart-wrap { height: 300px; position: relative; }
+.integrity-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.integrity-bar > div { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+.integrity-exact { background: var(--pass); }
+.integrity-good { background: var(--partial); }
+.integrity-mismatch { background: var(--fail); }
+.collapsible { cursor: pointer; user-select: none; }
+.collapsible-content { display: none; }
+.collapsible.open + .collapsible-content { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.sub-row { background: #fafafa; }
+.sub-row td { padding-left: 40px; font-size: 0.8125rem; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8125rem; }
+.empty-state { text-align: center; padding: 40px; color: var(--muted); }
+.tooltip { position: relative; }
+.tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <div>
+      <h1>MoQT Test Report</h1>
+      <div class="meta">Plan: <strong>lldash-baseline</strong> - Generated: 2026-09-08T17:37:43.972597+00:00</div>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card total"><div class="label">Total Runs</div><div class="value">8</div></div>
+    <div class="stat-card pass"><div class="label">Pass</div><div class="value">8</div></div>
+    <div class="stat-card partial"><div class="label">Partial</div><div class="value">0</div></div>
+    <div class="stat-card fail"><div class="label">Fail</div><div class="value">0</div></div>
+  </div>
+
+  <section class="card" style="margin-bottom:24px;">
+    <div class="card-header">Overview Charts</div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
+      <div><canvas id="cov-chart" class="chart-wrap"></canvas></div>
+      <div><canvas id="thr-chart" class="chart-wrap"></canvas></div>
+      <div><canvas id="rtt-chart" class="chart-wrap"></canvas></div>
+    </div>
+  </section>
+
+  <section class="card"><div class="card-header">Confusion Matrix (I1)</div><div class="card-body">
+<div class="table-wrap"><table style="max-width:640px;">
+<thead><tr><th></th><th>Expected Pass</th><th>Expected Fail</th></tr></thead>
+<tbody>
+<tr><th style="background:var(--header-bg)">Actual Pass</th>
+<td style="background:#e8f5e9;font-weight:600;">8 TP</td>
+<td style="background:#fbe9e7;font-weight:600;">0 FP</td></tr>
+<tr><th style="background:var(--header-bg)">Actual Fail</th>
+<td style="background:#fff8e1;font-weight:600;">0 FN</td>
+<td style="background:#e3f2fd;font-weight:600;">0 TN</td></tr>
+</tbody></table></div>
+<p style="color:var(--muted);font-size:0.8rem;">TP=True Positive, TN=True Negative, FP=False Positive,
+FN=False Negative. "Actual" = measured status; "Expected" = plan's
+<code>expect:</code> marker. Partial counts toward Fail.</p>
+</div></section>
+
+  <section class="card"><div class="card-header">Interop Matrix</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Relay</th><th>lldash-h2 (basic)</th><th>lldash-h2 (chain)</th><th>lldash-h2 (fanout)</th><th>lldash-h3 (basic)</th><th>lldash-h3 (chain)</th><th>lldash-h3 (fanout)</th></tr></thead><tbody><tr><td><strong>lldash-h2</strong></td><td><span class="badge badge-pass">pass</span></td><td><span class="badge badge-pass">pass</span></td><td><span class="badge badge-pass">pass</span></td><td><span class="mono">-</span></td><td><span class="mono">-</span></td><td><span class="mono">-</span></td></tr><tr><td><strong>lldash-h3</strong></td><td><span class="mono">-</span></td><td><span class="mono">-</span></td><td><span class="mono">-</span></td><td><span class="badge badge-pass">pass</span></td><td><span class="badge badge-pass">pass</span></td><td><span class="badge badge-pass">pass</span></td></tr></tbody></table></div></div></section>
+
+  <section class="card">
+    <div class="card-header">Detailed Results</div>
+    <div class="card-body">
+      <div class="table-wrap">
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Run ID</th><th>Status</th><th>Expected</th><th>Confusion</th><th>Pub</th><th>Relay</th><th>Sub</th>
+              <th>Network</th><th>Delivered</th><th>Integrity</th><th>Objects</th><th>RTT (ms)</th><th>Throughput</th>
+            </tr>
+          </thead>
+          <tbody><tr><td class="mono">lldash-h2-basic-clean</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h2</td><td>lldash-h2</td><td>lldash-h2</td><td><div class="network-badge"><span>bw=100 Mbps</span><span>delay=10ms</span><span>loss=0%</span></div></td><td>100.3% <span class="tooltip" data-tip="Coverage vs expected media (903269 B, trailing boxes excluded)">[100.5% exp]</span></td><td><div class="integrity-bar" title="exact 60/60 segs via HTTP/2 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs via HTTP/2</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">0.96 Mbps</td></tr><tr><td class="mono">lldash-h3-basic-clean</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h3</td><td>lldash-h3</td><td>lldash-h3</td><td><div class="network-badge"><span>bw=100 Mbps</span><span>delay=10ms</span><span>loss=0%</span></div></td><td>100.3% <span class="tooltip" data-tip="Coverage vs expected media (903269 B, trailing boxes excluded)">[100.5% exp]</span></td><td><div class="integrity-bar" title="exact 60/60 segs via h3 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs via h3</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">1.21 Mbps</td></tr><tr><td class="mono">lldash-h2-fanout-3</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h2</td><td>lldash-h2</td><td>lldash-h2</td><td><div class="network-badge"><span>bw=20 Mbps</span><span>delay=10ms</span><span>loss=0%</span><span>subs=3</span></div></td><td>301.0% <span class="tooltip" data-tip="Subscribers served the full stream">[full 3/3]</span></td><td><div class="integrity-bar" title="exact 60/60 segs/sub via HTTP/2 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs/sub via HTTP/2</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">1.04 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 3.11 agg)</span></td></tr><tr><td class="mono">lldash-h3-fanout-3</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h3</td><td>lldash-h3</td><td>lldash-h3</td><td><div class="network-badge"><span>bw=20 Mbps</span><span>delay=10ms</span><span>loss=0%</span><span>subs=3</span></div></td><td>301.0% <span class="tooltip" data-tip="Subscribers served the full stream">[full 3/3]</span></td><td><div class="integrity-bar" title="exact 60/60 segs/sub via h3 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs/sub via h3</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">1.13 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 3.40 agg)</span></td></tr><tr><td class="mono">lldash-h2-chain</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h2</td><td>lldash-h2</td><td>lldash-h2</td><td><div class="network-badge"><span>bw=50 Mbps</span><span>delay=10ms</span><span>loss=0%</span></div></td><td>100.3% <span class="tooltip" data-tip="Coverage vs expected media (903269 B, trailing boxes excluded)">[100.5% exp]</span></td><td><div class="integrity-bar" title="exact 60/60 segs via HTTP/2 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs via HTTP/2</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">1.02 Mbps</td></tr><tr><td class="mono">lldash-h3-chain</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h3</td><td>lldash-h3</td><td>lldash-h3</td><td><div class="network-badge"><span>bw=50 Mbps</span><span>delay=10ms</span><span>loss=0%</span></div></td><td>100.3% <span class="tooltip" data-tip="Coverage vs expected media (903269 B, trailing boxes excluded)">[100.5% exp]</span></td><td><div class="integrity-bar" title="exact 60/60 segs via h3 (per-segment value check)"><div class="integrity-exact" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">exact 60/60 segs via h3</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">1.21 Mbps</td></tr><tr><td class="mono">lldash-h2-late-join-5s</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h2</td><td>lldash-h2</td><td>lldash-h2</td><td><div class="network-badge"><span>bw=20 Mbps</span><span>delay=10ms</span><span>loss=0%</span><span>subs=2</span></div></td><td>297.7% <span class="tooltip" data-tip="Subscribers served the full stream">[full 3/3]</span></td><td><div class="integrity-bar" title="good 59/59 segs/sub via HTTP/2 (per-segment value check)"><div class="integrity-good" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">good 59/59 segs/sub via HTTP/2</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">2.35 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 7.04 agg)</span></td></tr><tr><td class="mono">lldash-h3-late-join-5s</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>lldash-h3</td><td>lldash-h3</td><td>lldash-h3</td><td><div class="network-badge"><span>bw=20 Mbps</span><span>delay=10ms</span><span>loss=0%</span><span>subs=2</span></div></td><td>297.7% <span class="tooltip" data-tip="Subscribers served the full stream">[full 3/3]</span></td><td><div class="integrity-bar" title="good 59/59 segs/sub via h3 (per-segment value check)"><div class="integrity-good" style="width: 100.0%"></div></div><div style="margin-top:4px;font-size:0.75rem;">good 59/59 segs/sub via h3</div></td><td class="mono">-</td><td class="mono">-</td><td class="mono">2.37 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 7.11 agg)</span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card"><div class="card-header">Per-Subscriber Delivery</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Run ID</th><th>Subscriber</th><th>Artifact (B)</th><th>Media (B)</th><th>mlog (B)</th><th>Prefix Identical</th><th>Segments</th><th>Throughput</th><th>Verdict</th></tr></thead><tbody><tr class="sub-row"><td class="mono">lldash-h2-basic-clean</td><td>sub</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">0.96 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-basic-clean</td><td>sub</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">1.21 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-fanout-3</td><td>sub1</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">1.04 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-fanout-3</td><td>sub2</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">1.04 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-fanout-3</td><td>sub3</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">1.04 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-fanout-3</td><td>sub1</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">1.13 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-fanout-3</td><td>sub2</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">1.13 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-fanout-3</td><td>sub3</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">1.13 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-chain</td><td>sub</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">1.02 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-chain</td><td>sub</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">1.21 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-late-join-5s</td><td>late_sub1</td><td class="mono">877401</td><td class="mono">877401</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">58/58 (join +5s, skip 2) via HTTP/2</td><td class="mono">2.29 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-late-join-5s</td><td>sub1</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">2.37 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h2-late-join-5s</td><td>sub2</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via HTTP/2</td><td class="mono">2.37 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-late-join-5s</td><td>late_sub1</td><td class="mono">877401</td><td class="mono">877401</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">58/58 (join +5s, skip 2) via h3</td><td class="mono">2.32 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-late-join-5s</td><td>sub1</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">2.40 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">lldash-h3-late-join-5s</td><td>sub2</td><td class="mono">907397</td><td class="mono">907397</td><td class="mono">None</td><td>100.0% segs</td><td class="mono">60/60 via h3</td><td class="mono">2.40 Mbps</td><td><span class="badge badge-pass">good</span></td></tr></tbody></table></div></div></section>
+
+  <section class="card"><div class="card-header">Integrity Detail</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Run ID</th><th>Expected (init/segments)</th><th>Received (mlog)</th><th>Per-object Match</th><th>Delivered (mlog)</th><th>Expected SHA</th><th>Delivered SHA</th></tr></thead><tbody><tr><td class="mono">lldash-h2-basic-clean</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">None</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h3-basic-clean</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">None</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h2-fanout-3</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">2722191</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h3-fanout-3</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">2722191</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h2-chain</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">None</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h3-chain</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">None</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h2-late-join-5s</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">2692195</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr><tr><td class="mono">lldash-h3-late-join-5s</td><td class="mono">init=786+seg=15288+seg=14572+seg=14731+seg=14713+seg=15456+seg=14830+seg=14105+seg=14774+seg=14639+seg=13918+seg=15213+seg=14979+seg=15002+seg=14833+seg=14770+seg=14946+seg=15079+seg=15257+seg=15003+seg=14796+seg=13946+seg=14899+seg=14966+seg=14850+seg=14734+seg=15006+seg=14942+seg=15112+seg=14870+seg=14801+seg=14937+seg=14966+seg=15335+seg=15106+seg=15037+seg=15234+seg=15150+seg=15158+seg=15093+seg=15047+seg=15237+seg=15325+seg=15359+seg=15294+seg=15504+seg=15734+seg=15685+seg=15728+seg=15556+seg=15550+seg=15583+seg=15393+seg=15312+seg=15015+seg=14582+seg=15433+seg=15041+seg=15136+seg=15026+seg=14897</td><td class="mono">-</td><td>-</td><td class="mono">2692195</td><td class="mono">8ed2a51747ca3d7a...</td><td class="mono">-...</td></tr></tbody></table></div></div></section>
+
+</div>
+
+<script>
+
+const labels = ["lldash-h2-basic-clean", "lldash-h3-basic-clean", "lldash-h2-fanout-3", "lldash-h3-fanout-3", "lldash-h2-chain", "lldash-h3-chain", "lldash-h2-late-join-5s", "lldash-h3-late-join-5s"];
+const coverage = [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0];
+const throughput = [0.95894, 1.205843, 1.0355456666666667, 1.1324766666666668, 1.015269, 1.205843, 2.3461393333333334, 2.3693683333333335];
+const barColors = ["#2e7d32", "#2e7d32", "#2e7d32", "#2e7d32", "#2e7d32", "#2e7d32", "#2e7d32", "#2e7d32"];
+
+new Chart(document.getElementById('cov-chart'), {
+  type: 'bar',
+  data: { labels, datasets: [{ label: 'Coverage %', data: coverage, backgroundColor: barColors }] },
+  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, title: { display: true, text: 'Coverage %' } } } }
+});
+
+new Chart(document.getElementById('thr-chart'), {
+  type: 'bar',
+  data: { labels, datasets: [{ label: 'Throughput (Mbps)', data: throughput, backgroundColor: barColors }] },
+  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, title: { display: true, text: 'Mbps' } } } }
+});
+
+const rttData = [null, null, null, null, null, null, null, null];
+if (false) {
+  new Chart(document.getElementById('rtt-chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'RTT (ms)', data: rttData, backgroundColor: barColors }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, title: { display: true, text: 'ms' } } } }
+  });
+} else {
+  const el = document.getElementById('rtt-chart');
+  if (el) el.parentElement.innerHTML = '<div class="empty-state">No RTT data (lldash baseline has no qlog; use MoQ runs for RTT)</div>';
+}
+
+
+</script>
+</body>
+</html>

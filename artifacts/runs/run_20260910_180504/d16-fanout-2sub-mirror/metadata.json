@@ -1,0 +1,47 @@
+{
+  "run_id": "d16-fanout-2sub-mirror",
+  "timestamp": "2026-09-10T18:06:36.565189+00:00",
+  "config": {
+    "id": "d16-fanout-2sub-mirror",
+    "topology": "fanout",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/client:16"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/relay:16"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/client:16"
+    },
+    "test_duration": 25,
+    "network": {
+      "num_subscribers": 2,
+      "quiet_period": 9999
+    },
+    "expect": "fail",
+    "reason": "exact mirror of d18 fanout-verify (sample.mp4, N=2, full window); pin is the only variable"
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "num_subscribers": 2,
+    "quiet_period": 9999
+  },
+  "teardown": {
+    "stop_grace_s": 3.0,
+    "stop_grace_default_s": 3.0,
+    "stop_drain_s": 12.0,
+    "stop_drain_default_s": 12.0,
+    "order": "pub-first"
+  },
+  "launch_order": "pub-first",
+  "pub_delay_s": 0.0
+}

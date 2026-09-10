@@ -1,0 +1,27 @@
+{
+  "run_id": "h2-clean",
+  "timestamp": "2026-09-08T17:38:17.678073+00:00",
+  "config": {
+    "id": "h2-clean",
+    "pub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "relay": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "sub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-client-h2:latest"
+    },
+    "topology": "basic",
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  }
+}

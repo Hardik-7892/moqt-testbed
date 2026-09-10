@@ -1,0 +1,35 @@
+[2m2026-09-10T20:23:37.131815Z[0m [32m INFO[0m [2mmoq_native_ietf::quic[0m[2m:[0m UDP socket bound [3mbind[0m[2m=[0m[::]:0 [3mlocal[0m[2m=[0m[::]:42766 [3mdual_stack[0m[2m=[0mtrue
+[2m2026-09-10T20:23:37.140206Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connecting to relay: url=https://10.0.0.2:4443/
+[2m2026-09-10T20:23:37.316825Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connected with CID: 3fc1bc0d63a55f403b329c86c3d2ad4f (use this to look up qlog/mlog on server)
+[2m2026-09-10T20:23:37.327247Z[0m [32m INFO[0m [2mmoq_pub::media[0m[2m:[0m catalog: {
+  "version": 1,
+  "streamingFormat": 1,
+  "streamingFormatVersion": "0.2",
+  "supportsDeltaUpdates": true,
+  "commonTrackFields": {
+    "namespace": "/fanout-verify-2sub-fullwindow",
+    "packaging": "cmaf",
+    "renderGroup": 1
+  },
+  "tracks": [
+    {
+      "name": "1.m4s",
+      "initTrack": "0.mp4",
+      "selectionParams": {
+        "codec": "avc1.64000D",
+        "width": 320,
+        "height": 240
+      }
+    }
+  ]
+}
+timestamp: 0 segment: 0:0 priority: 127
+timestamp: 15360 segment: 1:0 priority: 127
+timestamp: 30720 segment: 2:0 priority: 127
+timestamp: 46080 segment: 3:0 priority: 127
+timestamp: 61440 segment: 4:0 priority: 127
+timestamp: 76800 segment: 5:0 priority: 127
+timestamp: 92160 segment: 6:0 priority: 127
+timestamp: 107520 segment: 7:0 priority: 127
+timestamp: 122880 segment: 8:0 priority: 127
+timestamp: 138240 segment: 9:0 priority: 127

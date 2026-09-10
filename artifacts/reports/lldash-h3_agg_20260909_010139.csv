@@ -1,0 +1,4 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+lldash-h3-bw5,1,pass,exact,1011027.0,1011027.0,1,,,0,1,1.003251,,,0,1011027.2980501393,1011027.2980501393,1
+lldash-h3-clean,1,pass,exact,1163329.0,1163329.0,1,,,0,1,1.003251,,,0,1163329.4871794872,1163329.4871794872,1
+lldash-h3-loss1,1,pass,exact,958940.0,958940.0,1,,,0,1,1.003251,,,0,958940.0264200792,958940.0264200792,1

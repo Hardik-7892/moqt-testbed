@@ -1,0 +1,631 @@
+{
+  "plan": "draft16-probe",
+  "timestamp": "2026-09-10T18:07:35.291071+00:00",
+  "total": 3,
+  "passed": 2,
+  "partial": 1,
+  "failed": 0,
+  "results": [
+    {
+      "run_id": "d16-basic-1seg",
+      "config": {
+        "id": "d16-basic-1seg",
+        "media": "sample_1seg.mp4",
+        "pub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "relay": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/relay:16"
+        },
+        "sub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "test_duration": 15,
+        "expect": "pass",
+        "reason": "d16 single-sub baseline on easy media; gates the fanout read",
+        "topology": "basic"
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000
+      },
+      "start_time": "2026-09-10T18:05:04.638004+00:00",
+      "status": "pass",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": 2,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 56114,
+        "jitter_ms": null,
+        "rtt_estimate_ms": 13.4448,
+        "rtt_min_ms": 4.89,
+        "rtt_max_ms": 333.0,
+        "packets_sent": 75,
+        "packets_received": 68,
+        "packets_lost": 0,
+        "packet_loss_rate": 0.0,
+        "wire_total_packets": 0,
+        "wire_total_bytes": 0,
+        "wire_quic_packets": 0,
+        "wire_quic_bytes": 0,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": null,
+        "delivered_bytes": 21043,
+        "delivered_fraction": 0.996826
+      },
+      "end_time": "2026-09-10T18:05:36.563532+00:00",
+      "evaluation": {
+        "run_id": "d16-basic-1seg",
+        "status": "pass",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true
+        },
+        "stats": {
+          "delivered_bytes": 21043,
+          "artifact_bytes": 20892,
+          "original_bytes": 21110,
+          "coverage_pct": 99.68,
+          "expected_media_bytes": 21043,
+          "expected_coverage_pct": 100.0,
+          "integrity": {
+            "expected_bytes": 21043,
+            "delivered_bytes": 21043,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 769
+              },
+              {
+                "kind": "segment",
+                "bytes": 20274
+              }
+            ],
+            "received_objects": [
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 769
+              },
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 20274
+              }
+            ],
+            "per_object_match": true,
+            "sha256_expected": "417729c23f5cc5dfa0eb3138c2de6a9cc7b27994a3127fd040aa6b7cb37e3d1f",
+            "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+            "sha256_match": false,
+            "byte_identical_bytes": 20892,
+            "byte_identical_pct": 99.28,
+            "verdict": "good",
+            "per_sub": {
+              "sub": {
+                "role": "sub",
+                "artifact_bytes": 20892,
+                "media_bytes": 20892,
+                "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+                "sha256_match": false,
+                "byte_identical_bytes": 20892,
+                "byte_identical_pct": 99.28,
+                "mlog_delivered_bytes": 21043,
+                "verdict": "good"
+              }
+            }
+          },
+          "per_sub": {
+            "sub": {
+              "role": "sub",
+              "artifact_bytes": 20892,
+              "media_bytes": 20892,
+              "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+              "sha256_match": false,
+              "byte_identical_bytes": 20892,
+              "byte_identical_pct": 99.28,
+              "mlog_delivered_bytes": 21043,
+              "verdict": "good"
+            }
+          },
+          "completed": true,
+          "completion_reason": "delivery quiesced",
+          "run_duration_s": 3.0,
+          "delivered_full": true,
+          "worst_sub_role": null,
+          "worst_sub_coverage_pct": null
+        },
+        "expected": "pass",
+        "confusion": "TP",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": 2,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 56114,
+          "jitter_ms": null,
+          "rtt_estimate_ms": 13.4448,
+          "rtt_min_ms": 4.89,
+          "rtt_max_ms": 333.0,
+          "packets_sent": 75,
+          "packets_received": 68,
+          "packets_lost": 0,
+          "packet_loss_rate": 0.0,
+          "wire_total_packets": 0,
+          "wire_total_bytes": 0,
+          "wire_quic_packets": 0,
+          "wire_quic_bytes": 0,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": null,
+          "delivered_bytes": 21043,
+          "delivered_fraction": 0.996826
+        }
+      }
+    },
+    {
+      "run_id": "d16-fanout-2sub-1seg",
+      "config": {
+        "id": "d16-fanout-2sub-1seg",
+        "topology": "fanout",
+        "media": "sample_1seg.mp4",
+        "pub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "relay": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/relay:16"
+        },
+        "sub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "test_duration": 25,
+        "network": {
+          "num_subscribers": 2,
+          "quiet_period": 9999
+        },
+        "expect": "fail",
+        "reason": "hypothesis: same 1/2 single-consumer as d18; pass means d18-pin regression"
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000,
+        "num_subscribers": 2,
+        "quiet_period": 9999
+      },
+      "start_time": "2026-09-10T18:05:36.995336+00:00",
+      "status": "pass",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": 2,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 26859,
+        "jitter_ms": null,
+        "rtt_estimate_ms": 10.041,
+        "rtt_min_ms": 4.96,
+        "rtt_max_ms": 333.0,
+        "packets_sent": 229,
+        "packets_received": 202,
+        "packets_lost": 0,
+        "packet_loss_rate": 0.0,
+        "wire_total_packets": 0,
+        "wire_total_bytes": 0,
+        "wire_quic_packets": 0,
+        "wire_quic_bytes": 0,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": null,
+        "delivered_bytes": 84172,
+        "delivered_fraction": 3.987305
+      },
+      "end_time": "2026-09-10T18:06:36.024353+00:00",
+      "evaluation": {
+        "run_id": "d16-fanout-2sub-1seg",
+        "status": "pass",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true,
+          "all_subs_served": true
+        },
+        "stats": {
+          "delivered_bytes": 84172,
+          "artifact_bytes": 41784,
+          "original_bytes": 21110,
+          "coverage_pct": 398.73,
+          "expected_media_bytes": 21043,
+          "expected_coverage_pct": 400.0,
+          "integrity": {
+            "expected_bytes": 21043,
+            "delivered_bytes": 84172,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 769
+              },
+              {
+                "kind": "segment",
+                "bytes": 20274
+              }
+            ],
+            "received_objects": [
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 769
+              },
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 20274
+              }
+            ],
+            "per_object_match": null,
+            "sha256_expected": "417729c23f5cc5dfa0eb3138c2de6a9cc7b27994a3127fd040aa6b7cb37e3d1f",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 99.28,
+            "verdict": "mismatch",
+            "per_sub": {
+              "sub1": {
+                "role": "sub1",
+                "artifact_bytes": 20892,
+                "media_bytes": 20892,
+                "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+                "sha256_match": false,
+                "byte_identical_bytes": 20892,
+                "byte_identical_pct": 99.28,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              },
+              "sub2": {
+                "role": "sub2",
+                "artifact_bytes": 20892,
+                "media_bytes": 20892,
+                "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+                "sha256_match": false,
+                "byte_identical_bytes": 20892,
+                "byte_identical_pct": 99.28,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              }
+            }
+          },
+          "per_sub": {
+            "sub1": {
+              "role": "sub1",
+              "artifact_bytes": 20892,
+              "media_bytes": 20892,
+              "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+              "sha256_match": false,
+              "byte_identical_bytes": 20892,
+              "byte_identical_pct": 99.28,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            },
+            "sub2": {
+              "role": "sub2",
+              "artifact_bytes": 20892,
+              "media_bytes": 20892,
+              "sha256_delivered": "ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987",
+              "sha256_match": false,
+              "byte_identical_bytes": 20892,
+              "byte_identical_pct": 99.28,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            }
+          },
+          "completed": false,
+          "completion_reason": "time limit reached",
+          "run_duration_s": 25.07,
+          "delivered_full": true,
+          "worst_sub_role": "sub1",
+          "worst_sub_coverage_pct": 99.28
+        },
+        "expected": "fail",
+        "confusion": "FP",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": 2,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 26859,
+          "jitter_ms": null,
+          "rtt_estimate_ms": 10.041,
+          "rtt_min_ms": 4.96,
+          "rtt_max_ms": 333.0,
+          "packets_sent": 229,
+          "packets_received": 202,
+          "packets_lost": 0,
+          "packet_loss_rate": 0.0,
+          "wire_total_packets": 0,
+          "wire_total_bytes": 0,
+          "wire_quic_packets": 0,
+          "wire_quic_bytes": 0,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": null,
+          "delivered_bytes": 84172,
+          "delivered_fraction": 3.987305
+        }
+      }
+    },
+    {
+      "run_id": "d16-fanout-2sub-mirror",
+      "config": {
+        "id": "d16-fanout-2sub-mirror",
+        "topology": "fanout",
+        "pub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "relay": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/relay:16"
+        },
+        "sub": {
+          "impl": "moq-rs",
+          "draft": 16,
+          "tag": "moq-rs/client:16"
+        },
+        "test_duration": 25,
+        "network": {
+          "num_subscribers": 2,
+          "quiet_period": 9999
+        },
+        "expect": "fail",
+        "reason": "exact mirror of d18 fanout-verify (sample.mp4, N=2, full window); pin is the only variable"
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000,
+        "num_subscribers": 2,
+        "quiet_period": 9999
+      },
+      "start_time": "2026-09-10T18:06:36.569179+00:00",
+      "status": "partial",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": 11,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 14659,
+        "jitter_ms": null,
+        "rtt_estimate_ms": 7.7999,
+        "rtt_min_ms": 5.11,
+        "rtt_max_ms": 334.0,
+        "packets_sent": 200,
+        "packets_received": 181,
+        "packets_lost": 1,
+        "packet_loss_rate": 0.005,
+        "wire_total_packets": 0,
+        "wire_total_bytes": 0,
+        "wire_quic_packets": 0,
+        "wire_quic_bytes": 0,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": null,
+        "delivered_bytes": 46068,
+        "delivered_fraction": 0.42667
+      },
+      "end_time": "2026-09-10T18:07:34.891110+00:00",
+      "evaluation": {
+        "run_id": "d16-fanout-2sub-mirror",
+        "status": "partial",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true,
+          "all_subs_served": true
+        },
+        "stats": {
+          "delivered_bytes": 46068,
+          "artifact_bytes": 22482,
+          "original_bytes": 107971,
+          "coverage_pct": 42.67,
+          "expected_media_bytes": 107733,
+          "expected_coverage_pct": 42.76,
+          "integrity": {
+            "expected_bytes": 107733,
+            "delivered_bytes": 46068,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 786
+              },
+              {
+                "kind": "segment",
+                "bytes": 10697
+              },
+              {
+                "kind": "segment",
+                "bytes": 10712
+              },
+              {
+                "kind": "segment",
+                "bytes": 10669
+              },
+              {
+                "kind": "segment",
+                "bytes": 10642
+              },
+              {
+                "kind": "segment",
+                "bytes": 10615
+              },
+              {
+                "kind": "segment",
+                "bytes": 10569
+              },
+              {
+                "kind": "segment",
+                "bytes": 10969
+              },
+              {
+                "kind": "segment",
+                "bytes": 10611
+              },
+              {
+                "kind": "segment",
+                "bytes": 10732
+              },
+              {
+                "kind": "segment",
+                "bytes": 10731
+              }
+            ],
+            "received_objects": [
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 786
+              },
+              {
+                "group": 9,
+                "object": 0,
+                "bytes": 10731
+              }
+            ],
+            "per_object_match": null,
+            "sha256_expected": "c2b07dd6bd23cd9a78ec34cc7e5ff6c4d843d6284ab6aad652625e1880b71c19",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 0.75,
+            "verdict": "mismatch",
+            "per_sub": {
+              "sub1": {
+                "role": "sub1",
+                "artifact_bytes": 11241,
+                "media_bytes": 11241,
+                "sha256_delivered": "679f8ad80a0342475b70c934d3f0d7bb1f36a94abc840d87ff7c60e4f512b9bd",
+                "sha256_match": false,
+                "byte_identical_bytes": 809,
+                "byte_identical_pct": 0.75,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              },
+              "sub2": {
+                "role": "sub2",
+                "artifact_bytes": 11241,
+                "media_bytes": 11241,
+                "sha256_delivered": "679f8ad80a0342475b70c934d3f0d7bb1f36a94abc840d87ff7c60e4f512b9bd",
+                "sha256_match": false,
+                "byte_identical_bytes": 809,
+                "byte_identical_pct": 0.75,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              }
+            }
+          },
+          "per_sub": {
+            "sub1": {
+              "role": "sub1",
+              "artifact_bytes": 11241,
+              "media_bytes": 11241,
+              "sha256_delivered": "679f8ad80a0342475b70c934d3f0d7bb1f36a94abc840d87ff7c60e4f512b9bd",
+              "sha256_match": false,
+              "byte_identical_bytes": 809,
+              "byte_identical_pct": 0.75,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            },
+            "sub2": {
+              "role": "sub2",
+              "artifact_bytes": 11241,
+              "media_bytes": 11241,
+              "sha256_delivered": "679f8ad80a0342475b70c934d3f0d7bb1f36a94abc840d87ff7c60e4f512b9bd",
+              "sha256_match": false,
+              "byte_identical_bytes": 809,
+              "byte_identical_pct": 0.75,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            }
+          },
+          "completed": false,
+          "completion_reason": "time limit reached",
+          "run_duration_s": 25.14,
+          "delivered_full": false,
+          "worst_sub_role": "sub1",
+          "worst_sub_coverage_pct": 10.43
+        },
+        "expected": "fail",
+        "confusion": "?",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": 11,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 14659,
+          "jitter_ms": null,
+          "rtt_estimate_ms": 7.7999,
+          "rtt_min_ms": 5.11,
+          "rtt_max_ms": 334.0,
+          "packets_sent": 200,
+          "packets_received": 181,
+          "packets_lost": 1,
+          "packet_loss_rate": 0.005,
+          "wire_total_packets": 0,
+          "wire_total_bytes": 0,
+          "wire_quic_packets": 0,
+          "wire_quic_bytes": 0,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": null,
+          "delivered_bytes": 46068,
+          "delivered_fraction": 0.42667
+        }
+      }
+    }
+  ]
+}

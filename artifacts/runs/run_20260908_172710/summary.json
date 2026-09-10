@@ -1,0 +1,1258 @@
+{
+  "plan": "lldash-h2",
+  "timestamp": "2026-09-08T17:29:14.435434+00:00",
+  "total": 3,
+  "passed": 3,
+  "partial": 0,
+  "failed": 0,
+  "results": [
+    {
+      "run_id": "lldash-h2-clean",
+      "config": {
+        "id": "lldash-h2-clean",
+        "pub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "relay": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "sub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-client-h2:latest"
+        },
+        "topology": "basic",
+        "require_integrity": true
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000
+      },
+      "start_time": "2026-09-08T17:27:10.468001+00:00",
+      "status": "pass",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": null,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 1034070,
+        "jitter_ms": null,
+        "rtt_estimate_ms": null,
+        "rtt_min_ms": null,
+        "rtt_max_ms": null,
+        "packets_sent": 0,
+        "packets_received": 0,
+        "packets_lost": 0,
+        "packet_loss_rate": null,
+        "wire_total_packets": null,
+        "wire_total_bytes": null,
+        "wire_quic_packets": null,
+        "wire_quic_bytes": null,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": "SSLKEYLOGFILE not found",
+        "delivered_bytes": 907397,
+        "delivered_fraction": 1.003251
+      },
+      "end_time": "2026-09-08T17:27:51.682402+00:00",
+      "evaluation": {
+        "run_id": "lldash-h2-clean",
+        "status": "pass",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true
+        },
+        "stats": {
+          "delivered_bytes": 907397,
+          "artifact_bytes": 907397,
+          "original_bytes": 904457,
+          "coverage_pct": 100.33,
+          "expected_media_bytes": 903269,
+          "expected_coverage_pct": 100.46,
+          "integrity": {
+            "expected_bytes": 903269,
+            "delivered_bytes": null,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 786
+              },
+              {
+                "kind": "segment",
+                "bytes": 15288
+              },
+              {
+                "kind": "segment",
+                "bytes": 14572
+              },
+              {
+                "kind": "segment",
+                "bytes": 14731
+              },
+              {
+                "kind": "segment",
+                "bytes": 14713
+              },
+              {
+                "kind": "segment",
+                "bytes": 15456
+              },
+              {
+                "kind": "segment",
+                "bytes": 14830
+              },
+              {
+                "kind": "segment",
+                "bytes": 14105
+              },
+              {
+                "kind": "segment",
+                "bytes": 14774
+              },
+              {
+                "kind": "segment",
+                "bytes": 14639
+              },
+              {
+                "kind": "segment",
+                "bytes": 13918
+              },
+              {
+                "kind": "segment",
+                "bytes": 15213
+              },
+              {
+                "kind": "segment",
+                "bytes": 14979
+              },
+              {
+                "kind": "segment",
+                "bytes": 15002
+              },
+              {
+                "kind": "segment",
+                "bytes": 14833
+              },
+              {
+                "kind": "segment",
+                "bytes": 14770
+              },
+              {
+                "kind": "segment",
+                "bytes": 14946
+              },
+              {
+                "kind": "segment",
+                "bytes": 15079
+              },
+              {
+                "kind": "segment",
+                "bytes": 15257
+              },
+              {
+                "kind": "segment",
+                "bytes": 15003
+              },
+              {
+                "kind": "segment",
+                "bytes": 14796
+              },
+              {
+                "kind": "segment",
+                "bytes": 13946
+              },
+              {
+                "kind": "segment",
+                "bytes": 14899
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 14850
+              },
+              {
+                "kind": "segment",
+                "bytes": 14734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15006
+              },
+              {
+                "kind": "segment",
+                "bytes": 14942
+              },
+              {
+                "kind": "segment",
+                "bytes": 15112
+              },
+              {
+                "kind": "segment",
+                "bytes": 14870
+              },
+              {
+                "kind": "segment",
+                "bytes": 14801
+              },
+              {
+                "kind": "segment",
+                "bytes": 14937
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 15335
+              },
+              {
+                "kind": "segment",
+                "bytes": 15106
+              },
+              {
+                "kind": "segment",
+                "bytes": 15037
+              },
+              {
+                "kind": "segment",
+                "bytes": 15234
+              },
+              {
+                "kind": "segment",
+                "bytes": 15150
+              },
+              {
+                "kind": "segment",
+                "bytes": 15158
+              },
+              {
+                "kind": "segment",
+                "bytes": 15093
+              },
+              {
+                "kind": "segment",
+                "bytes": 15047
+              },
+              {
+                "kind": "segment",
+                "bytes": 15237
+              },
+              {
+                "kind": "segment",
+                "bytes": 15325
+              },
+              {
+                "kind": "segment",
+                "bytes": 15359
+              },
+              {
+                "kind": "segment",
+                "bytes": 15294
+              },
+              {
+                "kind": "segment",
+                "bytes": 15504
+              },
+              {
+                "kind": "segment",
+                "bytes": 15734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15685
+              },
+              {
+                "kind": "segment",
+                "bytes": 15728
+              },
+              {
+                "kind": "segment",
+                "bytes": 15556
+              },
+              {
+                "kind": "segment",
+                "bytes": 15550
+              },
+              {
+                "kind": "segment",
+                "bytes": 15583
+              },
+              {
+                "kind": "segment",
+                "bytes": 15393
+              },
+              {
+                "kind": "segment",
+                "bytes": 15312
+              },
+              {
+                "kind": "segment",
+                "bytes": 15015
+              },
+              {
+                "kind": "segment",
+                "bytes": 14582
+              },
+              {
+                "kind": "segment",
+                "bytes": 15433
+              },
+              {
+                "kind": "segment",
+                "bytes": 15041
+              },
+              {
+                "kind": "segment",
+                "bytes": 15136
+              },
+              {
+                "kind": "segment",
+                "bytes": 15026
+              },
+              {
+                "kind": "segment",
+                "bytes": 14897
+              }
+            ],
+            "received_objects": [],
+            "per_object_match": null,
+            "sha256_expected": "8ed2a51747ca3d7ab68e4d709bd0d7a7ed2b383882b130ef4fcef14482d269c5",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 100.0,
+            "verdict": "exact",
+            "per_sub": {
+              "sub": {
+                "role": "sub",
+                "artifact_bytes": 907397,
+                "media_bytes": 907397,
+                "sha256_delivered": null,
+                "sha256_match": null,
+                "byte_identical_bytes": null,
+                "byte_identical_pct": 100.0,
+                "mlog_delivered_bytes": null,
+                "verdict": "exact",
+                "join_delay_s": 0.0,
+                "skipped": 0,
+                "segments_fetched": 60,
+                "segments_expected": 60,
+                "segments_matching": 60,
+                "fetch_protocol": "h2",
+                "fetch_protos": {
+                  "HTTP/2": 61
+                }
+              }
+            },
+            "streaming": true,
+            "total_segments": 60,
+            "segment_duration_s": 2.0
+          },
+          "per_sub": {
+            "sub": {
+              "role": "sub",
+              "artifact_bytes": 907397,
+              "media_bytes": 907397,
+              "sha256_delivered": null,
+              "sha256_match": null,
+              "byte_identical_bytes": null,
+              "byte_identical_pct": 100.0,
+              "mlog_delivered_bytes": null,
+              "verdict": "exact",
+              "join_delay_s": 0.0,
+              "skipped": 0,
+              "segments_fetched": 60,
+              "segments_expected": 60,
+              "segments_matching": 60,
+              "fetch_protocol": "h2",
+              "fetch_protos": {
+                "HTTP/2": 61
+              }
+            }
+          },
+          "completed": true,
+          "completion_reason": "delivery quiesced",
+          "run_duration_s": 7.02,
+          "delivered_full": true
+        },
+        "expected": "pass",
+        "confusion": "TP",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": null,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 1034070,
+          "jitter_ms": null,
+          "rtt_estimate_ms": null,
+          "rtt_min_ms": null,
+          "rtt_max_ms": null,
+          "packets_sent": 0,
+          "packets_received": 0,
+          "packets_lost": 0,
+          "packet_loss_rate": null,
+          "wire_total_packets": null,
+          "wire_total_bytes": null,
+          "wire_quic_packets": null,
+          "wire_quic_bytes": null,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": "SSLKEYLOGFILE not found",
+          "delivered_bytes": 907397,
+          "delivered_fraction": 1.003251
+        }
+      }
+    },
+    {
+      "run_id": "lldash-h2-loss1",
+      "config": {
+        "id": "lldash-h2-loss1",
+        "pub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "relay": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "sub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-client-h2:latest"
+        },
+        "network": {
+          "loss": 1
+        },
+        "topology": "basic",
+        "require_integrity": true
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 1,
+        "max_queue_size": 1000
+      },
+      "start_time": "2026-09-08T17:27:52.362671+00:00",
+      "status": "pass",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": null,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 998511,
+        "jitter_ms": null,
+        "rtt_estimate_ms": null,
+        "rtt_min_ms": null,
+        "rtt_max_ms": null,
+        "packets_sent": 0,
+        "packets_received": 0,
+        "packets_lost": 0,
+        "packet_loss_rate": null,
+        "wire_total_packets": null,
+        "wire_total_bytes": null,
+        "wire_quic_packets": null,
+        "wire_quic_bytes": null,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": "SSLKEYLOGFILE not found",
+        "delivered_bytes": 907397,
+        "delivered_fraction": 1.003251
+      },
+      "end_time": "2026-09-08T17:28:32.596638+00:00",
+      "evaluation": {
+        "run_id": "lldash-h2-loss1",
+        "status": "pass",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true
+        },
+        "stats": {
+          "delivered_bytes": 907397,
+          "artifact_bytes": 907397,
+          "original_bytes": 904457,
+          "coverage_pct": 100.33,
+          "expected_media_bytes": 903269,
+          "expected_coverage_pct": 100.46,
+          "integrity": {
+            "expected_bytes": 903269,
+            "delivered_bytes": null,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 786
+              },
+              {
+                "kind": "segment",
+                "bytes": 15288
+              },
+              {
+                "kind": "segment",
+                "bytes": 14572
+              },
+              {
+                "kind": "segment",
+                "bytes": 14731
+              },
+              {
+                "kind": "segment",
+                "bytes": 14713
+              },
+              {
+                "kind": "segment",
+                "bytes": 15456
+              },
+              {
+                "kind": "segment",
+                "bytes": 14830
+              },
+              {
+                "kind": "segment",
+                "bytes": 14105
+              },
+              {
+                "kind": "segment",
+                "bytes": 14774
+              },
+              {
+                "kind": "segment",
+                "bytes": 14639
+              },
+              {
+                "kind": "segment",
+                "bytes": 13918
+              },
+              {
+                "kind": "segment",
+                "bytes": 15213
+              },
+              {
+                "kind": "segment",
+                "bytes": 14979
+              },
+              {
+                "kind": "segment",
+                "bytes": 15002
+              },
+              {
+                "kind": "segment",
+                "bytes": 14833
+              },
+              {
+                "kind": "segment",
+                "bytes": 14770
+              },
+              {
+                "kind": "segment",
+                "bytes": 14946
+              },
+              {
+                "kind": "segment",
+                "bytes": 15079
+              },
+              {
+                "kind": "segment",
+                "bytes": 15257
+              },
+              {
+                "kind": "segment",
+                "bytes": 15003
+              },
+              {
+                "kind": "segment",
+                "bytes": 14796
+              },
+              {
+                "kind": "segment",
+                "bytes": 13946
+              },
+              {
+                "kind": "segment",
+                "bytes": 14899
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 14850
+              },
+              {
+                "kind": "segment",
+                "bytes": 14734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15006
+              },
+              {
+                "kind": "segment",
+                "bytes": 14942
+              },
+              {
+                "kind": "segment",
+                "bytes": 15112
+              },
+              {
+                "kind": "segment",
+                "bytes": 14870
+              },
+              {
+                "kind": "segment",
+                "bytes": 14801
+              },
+              {
+                "kind": "segment",
+                "bytes": 14937
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 15335
+              },
+              {
+                "kind": "segment",
+                "bytes": 15106
+              },
+              {
+                "kind": "segment",
+                "bytes": 15037
+              },
+              {
+                "kind": "segment",
+                "bytes": 15234
+              },
+              {
+                "kind": "segment",
+                "bytes": 15150
+              },
+              {
+                "kind": "segment",
+                "bytes": 15158
+              },
+              {
+                "kind": "segment",
+                "bytes": 15093
+              },
+              {
+                "kind": "segment",
+                "bytes": 15047
+              },
+              {
+                "kind": "segment",
+                "bytes": 15237
+              },
+              {
+                "kind": "segment",
+                "bytes": 15325
+              },
+              {
+                "kind": "segment",
+                "bytes": 15359
+              },
+              {
+                "kind": "segment",
+                "bytes": 15294
+              },
+              {
+                "kind": "segment",
+                "bytes": 15504
+              },
+              {
+                "kind": "segment",
+                "bytes": 15734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15685
+              },
+              {
+                "kind": "segment",
+                "bytes": 15728
+              },
+              {
+                "kind": "segment",
+                "bytes": 15556
+              },
+              {
+                "kind": "segment",
+                "bytes": 15550
+              },
+              {
+                "kind": "segment",
+                "bytes": 15583
+              },
+              {
+                "kind": "segment",
+                "bytes": 15393
+              },
+              {
+                "kind": "segment",
+                "bytes": 15312
+              },
+              {
+                "kind": "segment",
+                "bytes": 15015
+              },
+              {
+                "kind": "segment",
+                "bytes": 14582
+              },
+              {
+                "kind": "segment",
+                "bytes": 15433
+              },
+              {
+                "kind": "segment",
+                "bytes": 15041
+              },
+              {
+                "kind": "segment",
+                "bytes": 15136
+              },
+              {
+                "kind": "segment",
+                "bytes": 15026
+              },
+              {
+                "kind": "segment",
+                "bytes": 14897
+              }
+            ],
+            "received_objects": [],
+            "per_object_match": null,
+            "sha256_expected": "8ed2a51747ca3d7ab68e4d709bd0d7a7ed2b383882b130ef4fcef14482d269c5",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 100.0,
+            "verdict": "exact",
+            "per_sub": {
+              "sub": {
+                "role": "sub",
+                "artifact_bytes": 907397,
+                "media_bytes": 907397,
+                "sha256_delivered": null,
+                "sha256_match": null,
+                "byte_identical_bytes": null,
+                "byte_identical_pct": 100.0,
+                "mlog_delivered_bytes": null,
+                "verdict": "exact",
+                "join_delay_s": 0.0,
+                "skipped": 0,
+                "segments_fetched": 60,
+                "segments_expected": 60,
+                "segments_matching": 60,
+                "fetch_protocol": "h2",
+                "fetch_protos": {
+                  "HTTP/2": 61
+                }
+              }
+            },
+            "streaming": true,
+            "total_segments": 60,
+            "segment_duration_s": 2.0
+          },
+          "per_sub": {
+            "sub": {
+              "role": "sub",
+              "artifact_bytes": 907397,
+              "media_bytes": 907397,
+              "sha256_delivered": null,
+              "sha256_match": null,
+              "byte_identical_bytes": null,
+              "byte_identical_pct": 100.0,
+              "mlog_delivered_bytes": null,
+              "verdict": "exact",
+              "join_delay_s": 0.0,
+              "skipped": 0,
+              "segments_fetched": 60,
+              "segments_expected": 60,
+              "segments_matching": 60,
+              "fetch_protocol": "h2",
+              "fetch_protos": {
+                "HTTP/2": 61
+              }
+            }
+          },
+          "completed": true,
+          "completion_reason": "delivery quiesced",
+          "run_duration_s": 7.27,
+          "delivered_full": true
+        },
+        "expected": "pass",
+        "confusion": "TP",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": null,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 998511,
+          "jitter_ms": null,
+          "rtt_estimate_ms": null,
+          "rtt_min_ms": null,
+          "rtt_max_ms": null,
+          "packets_sent": 0,
+          "packets_received": 0,
+          "packets_lost": 0,
+          "packet_loss_rate": null,
+          "wire_total_packets": null,
+          "wire_total_bytes": null,
+          "wire_quic_packets": null,
+          "wire_quic_bytes": null,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": "SSLKEYLOGFILE not found",
+          "delivered_bytes": 907397,
+          "delivered_fraction": 1.003251
+        }
+      }
+    },
+    {
+      "run_id": "lldash-h2-bw5",
+      "config": {
+        "id": "lldash-h2-bw5",
+        "pub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "relay": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-origin-h2:latest"
+        },
+        "sub": {
+          "impl": "lldash-h2",
+          "tag": "0hardikpandey/lldash-client-h2:latest"
+        },
+        "network": {
+          "bw": 5
+        },
+        "topology": "basic",
+        "require_integrity": true
+      },
+      "network": {
+        "bw": 5,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000
+      },
+      "start_time": "2026-09-08T17:28:33.369101+00:00",
+      "status": "pass",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": null,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 1034070,
+        "jitter_ms": null,
+        "rtt_estimate_ms": null,
+        "rtt_min_ms": null,
+        "rtt_max_ms": null,
+        "packets_sent": 0,
+        "packets_received": 0,
+        "packets_lost": 0,
+        "packet_loss_rate": null,
+        "wire_total_packets": null,
+        "wire_total_bytes": null,
+        "wire_quic_packets": null,
+        "wire_quic_bytes": null,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": "SSLKEYLOGFILE not found",
+        "delivered_bytes": 907397,
+        "delivered_fraction": 1.003251
+      },
+      "end_time": "2026-09-08T17:29:13.811632+00:00",
+      "evaluation": {
+        "run_id": "lldash-h2-bw5",
+        "status": "pass",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true
+        },
+        "stats": {
+          "delivered_bytes": 907397,
+          "artifact_bytes": 907397,
+          "original_bytes": 904457,
+          "coverage_pct": 100.33,
+          "expected_media_bytes": 903269,
+          "expected_coverage_pct": 100.46,
+          "integrity": {
+            "expected_bytes": 903269,
+            "delivered_bytes": null,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 786
+              },
+              {
+                "kind": "segment",
+                "bytes": 15288
+              },
+              {
+                "kind": "segment",
+                "bytes": 14572
+              },
+              {
+                "kind": "segment",
+                "bytes": 14731
+              },
+              {
+                "kind": "segment",
+                "bytes": 14713
+              },
+              {
+                "kind": "segment",
+                "bytes": 15456
+              },
+              {
+                "kind": "segment",
+                "bytes": 14830
+              },
+              {
+                "kind": "segment",
+                "bytes": 14105
+              },
+              {
+                "kind": "segment",
+                "bytes": 14774
+              },
+              {
+                "kind": "segment",
+                "bytes": 14639
+              },
+              {
+                "kind": "segment",
+                "bytes": 13918
+              },
+              {
+                "kind": "segment",
+                "bytes": 15213
+              },
+              {
+                "kind": "segment",
+                "bytes": 14979
+              },
+              {
+                "kind": "segment",
+                "bytes": 15002
+              },
+              {
+                "kind": "segment",
+                "bytes": 14833
+              },
+              {
+                "kind": "segment",
+                "bytes": 14770
+              },
+              {
+                "kind": "segment",
+                "bytes": 14946
+              },
+              {
+                "kind": "segment",
+                "bytes": 15079
+              },
+              {
+                "kind": "segment",
+                "bytes": 15257
+              },
+              {
+                "kind": "segment",
+                "bytes": 15003
+              },
+              {
+                "kind": "segment",
+                "bytes": 14796
+              },
+              {
+                "kind": "segment",
+                "bytes": 13946
+              },
+              {
+                "kind": "segment",
+                "bytes": 14899
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 14850
+              },
+              {
+                "kind": "segment",
+                "bytes": 14734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15006
+              },
+              {
+                "kind": "segment",
+                "bytes": 14942
+              },
+              {
+                "kind": "segment",
+                "bytes": 15112
+              },
+              {
+                "kind": "segment",
+                "bytes": 14870
+              },
+              {
+                "kind": "segment",
+                "bytes": 14801
+              },
+              {
+                "kind": "segment",
+                "bytes": 14937
+              },
+              {
+                "kind": "segment",
+                "bytes": 14966
+              },
+              {
+                "kind": "segment",
+                "bytes": 15335
+              },
+              {
+                "kind": "segment",
+                "bytes": 15106
+              },
+              {
+                "kind": "segment",
+                "bytes": 15037
+              },
+              {
+                "kind": "segment",
+                "bytes": 15234
+              },
+              {
+                "kind": "segment",
+                "bytes": 15150
+              },
+              {
+                "kind": "segment",
+                "bytes": 15158
+              },
+              {
+                "kind": "segment",
+                "bytes": 15093
+              },
+              {
+                "kind": "segment",
+                "bytes": 15047
+              },
+              {
+                "kind": "segment",
+                "bytes": 15237
+              },
+              {
+                "kind": "segment",
+                "bytes": 15325
+              },
+              {
+                "kind": "segment",
+                "bytes": 15359
+              },
+              {
+                "kind": "segment",
+                "bytes": 15294
+              },
+              {
+                "kind": "segment",
+                "bytes": 15504
+              },
+              {
+                "kind": "segment",
+                "bytes": 15734
+              },
+              {
+                "kind": "segment",
+                "bytes": 15685
+              },
+              {
+                "kind": "segment",
+                "bytes": 15728
+              },
+              {
+                "kind": "segment",
+                "bytes": 15556
+              },
+              {
+                "kind": "segment",
+                "bytes": 15550
+              },
+              {
+                "kind": "segment",
+                "bytes": 15583
+              },
+              {
+                "kind": "segment",
+                "bytes": 15393
+              },
+              {
+                "kind": "segment",
+                "bytes": 15312
+              },
+              {
+                "kind": "segment",
+                "bytes": 15015
+              },
+              {
+                "kind": "segment",
+                "bytes": 14582
+              },
+              {
+                "kind": "segment",
+                "bytes": 15433
+              },
+              {
+                "kind": "segment",
+                "bytes": 15041
+              },
+              {
+                "kind": "segment",
+                "bytes": 15136
+              },
+              {
+                "kind": "segment",
+                "bytes": 15026
+              },
+              {
+                "kind": "segment",
+                "bytes": 14897
+              }
+            ],
+            "received_objects": [],
+            "per_object_match": null,
+            "sha256_expected": "8ed2a51747ca3d7ab68e4d709bd0d7a7ed2b383882b130ef4fcef14482d269c5",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 100.0,
+            "verdict": "exact",
+            "per_sub": {
+              "sub": {
+                "role": "sub",
+                "artifact_bytes": 907397,
+                "media_bytes": 907397,
+                "sha256_delivered": null,
+                "sha256_match": null,
+                "byte_identical_bytes": null,
+                "byte_identical_pct": 100.0,
+                "mlog_delivered_bytes": null,
+                "verdict": "exact",
+                "join_delay_s": 0.0,
+                "skipped": 0,
+                "segments_fetched": 60,
+                "segments_expected": 60,
+                "segments_matching": 60,
+                "fetch_protocol": "h2",
+                "fetch_protos": {
+                  "HTTP/2": 61
+                }
+              }
+            },
+            "streaming": true,
+            "total_segments": 60,
+            "segment_duration_s": 2.0
+          },
+          "per_sub": {
+            "sub": {
+              "role": "sub",
+              "artifact_bytes": 907397,
+              "media_bytes": 907397,
+              "sha256_delivered": null,
+              "sha256_match": null,
+              "byte_identical_bytes": null,
+              "byte_identical_pct": 100.0,
+              "mlog_delivered_bytes": null,
+              "verdict": "exact",
+              "join_delay_s": 0.0,
+              "skipped": 0,
+              "segments_fetched": 60,
+              "segments_expected": 60,
+              "segments_matching": 60,
+              "fetch_protocol": "h2",
+              "fetch_protos": {
+                "HTTP/2": 61
+              }
+            }
+          },
+          "completed": true,
+          "completion_reason": "delivery quiesced",
+          "run_duration_s": 7.02,
+          "delivered_full": true
+        },
+        "expected": "pass",
+        "confusion": "TP",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": null,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 1034070,
+          "jitter_ms": null,
+          "rtt_estimate_ms": null,
+          "rtt_min_ms": null,
+          "rtt_max_ms": null,
+          "packets_sent": 0,
+          "packets_received": 0,
+          "packets_lost": 0,
+          "packet_loss_rate": null,
+          "wire_total_packets": null,
+          "wire_total_bytes": null,
+          "wire_quic_packets": null,
+          "wire_quic_bytes": null,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": "SSLKEYLOGFILE not found",
+          "delivered_bytes": 907397,
+          "delivered_fraction": 1.003251
+        }
+      }
+    }
+  ]
+}

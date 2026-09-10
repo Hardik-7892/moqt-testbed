@@ -1,0 +1,32 @@
+{
+  "run_id": "lldash-h3-basic-clean",
+  "timestamp": "2026-09-08T17:31:58.050083+00:00",
+  "config": {
+    "id": "lldash-h3-basic-clean",
+    "pub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "relay": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-origin-h3:latest"
+    },
+    "sub": {
+      "impl": "lldash-h3",
+      "tag": "0hardikpandey/lldash-client-h3:latest"
+    },
+    "network": {
+      "bw": 100,
+      "delay": "10ms",
+      "loss": 0
+    },
+    "topology": "basic",
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  }
+}

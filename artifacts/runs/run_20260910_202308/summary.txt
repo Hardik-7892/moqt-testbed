@@ -1,0 +1,11 @@
+Plan: fanout-verify
+Total: 1
+Pass:  0
+Partial: 0
+Fail:  1
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+fanout-verify-2sub-fullwindow                                fail       107733/107971 (99.78%) [full 0/2] sha mismatch 0.0% identical 74.6         time limit            
+    sub1: artifact=96842 B, media=96842 B, mlog=-, prefix=40.4%, verdict=mismatch
+    sub2: artifact=0 B, media=0 B, mlog=-, prefix=0.0%, verdict=mismatch

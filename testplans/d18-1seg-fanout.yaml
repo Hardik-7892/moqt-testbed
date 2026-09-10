@@ -1,0 +1,23 @@
+name: "d18-1seg-fanout"
+description: >
+  Fourth corner of the pin-vs-media square: d18 fanout N=2 on the easy 1-seg
+  media to the full window (quiesce off via quiet_period). d16 does this
+  exact row at [full 2/2] (draft16-probe). If d18 starves 1/2 here, the
+  single-consumer bug is nailed to the d18 pin independent of media.
+  Local moq-rs/*:18 tags; same-impl trio negotiates moqt-18.
+topology: "fanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 25
+runs:
+  - id: "d18-fanout-2sub-1seg"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 2, quiet_period: 9999 }
+    expect: fail
+    reason: "hypothesis: same 1/2 single-consumer as d18+sample.mp4; pass would implicate media, not pin"

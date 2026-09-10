@@ -94,6 +94,24 @@ def _teardown_order() -> str:
     return order
 
 
+def _launch_order() -> str:
+    """Subscriber-vs-publisher launch order probe.
+
+    Default pub-first is B20 (moq-rs sub dies on `Track not found` if it
+    subscribes before publish). sub-first starts subscribers BEFORE the
+    publisher with no pub-ready gate -- safe only for impls whose sub
+    tolerates an empty relay (moxygen FLV sub gets SubscribeOk with
+    Largest={0,0} and waits; moq-rs sub would die and burn a supervised
+    restart). Unknown values fall back to pub-first (loud).
+    """
+    order = os.environ.get("MOQ_SUB_FIRST", "")
+    if order.strip() == "1":
+        return "sub-first"
+    if order.strip() not in ("", "0"):
+        print(f"WARN: MOQ_SUB_FIRST={order!r} not '1', using pub-first")
+    return "pub-first"
+
+
 def load_testplan(path: str) -> Dict[str, Any]:
     with open(path) as f:
         return yaml.safe_load(f)
@@ -224,6 +242,22 @@ class MoQTestRun:
         self.stop_grace_s = _env_float("MOQ_STOP_GRACE_S", self.STOP_GRACE_S)
         self.stop_drain_s = _env_float("MOQ_STOP_DRAIN_S", self.STOP_DRAIN_S)
         self.teardown_order = _teardown_order()
+        self.launch_order = _launch_order()
+        self.pub_delay_s = _env_float("MOQ_PUB_DELAY_S", 0.0)
+        # BUGFIX (moxygen-30s-subfirst NameError): stream fan-out count used
+        # to live inside the publisher block, which the MOQ_SUB_FIRST=1 path
+        # runs AFTER the subscriber block -- referencing it there crashed
+        # before any container launched. Hoisted here so every launch order
+        # (and any future reorder) sees it bound.
+        try:
+            self.num_streams = int(self.config.get("streams", 1))
+        except (TypeError, ValueError):
+            print(f"WARN: streams={self.config.get('streams')!r} invalid, "
+                  f"using 1")
+            self.num_streams = 1
+        if self.num_streams < 1:
+            print(f"WARN: streams={self.num_streams} < 1, using 1")
+            self.num_streams = 1
         if (self.stop_grace_s != self.STOP_GRACE_S
                 or self.stop_drain_s != self.STOP_DRAIN_S
                 or self.teardown_order != "pub-first"):
@@ -730,6 +764,43 @@ class MoQTestRun:
         if mismatches:
             raise RuntimeError("Image tag skew detected (B36):\n  " + "\n  ".join(mismatches))
 
+    def _launch_subscribers(self, stream_name, media_path, last_relay_ip,
+                              last_relay_port, last_relay_path, num_streams):
+        """Launch all subscriber roles; return sub_specs for supervision.
+
+        B7: covers sub (basic/chain) and sub1..subN (fanout/chainfanout);
+        each role resolves its own impl (mixed-impl overrides fall back to
+        "sub") and its own output redirect. Extracted verbatim so launch
+        order (pub-first vs MOQ_SUB_FIRST=1) can vary without duplicating
+        the block; behaviour under the default order is unchanged.
+        """
+        sub_roles = [r for r in self.hosts if r.startswith("sub")]
+        self._log(f"Starting {len(sub_roles)} subscriber(s)...")
+        sub_specs = []
+        for sub_role in sub_roles:
+            role_cfg = self._sub_role_cfg(sub_role)
+            role_entry = self._get_entrypoint(role_cfg.get("impl", ""), "sub")
+            if not role_entry:
+                continue
+            role_output_cfg = self._get_impl_config(role_cfg.get("impl", "")).get("sub_output", {})
+            sub_host = self.hosts[sub_role]
+            for s_idx in range(num_streams):
+                stream_name_s = f"{stream_name}_s{s_idx}" if num_streams > 1 else stream_name
+                sub_cmd = self._fill_entrypoint(role_entry, {
+                    "relay": last_relay_ip, "stream": stream_name_s,
+                    "port": last_relay_port, "dir": "/output", "file": media_path,
+                    "draft": role_cfg.get("draft") or "any",
+                    # Streaming baselines (lldash) skip aired segments
+                    # for late joiners; early subs join at 0.
+                    "join_delay": "0",
+                    "path": last_relay_path,
+                })
+                sub_redirect = self._sub_launch_redirect(role_output_cfg, stream_name_s, media_path)
+                full = f"{sub_cmd} {sub_redirect} 2>/logs/{sub_role}_s{s_idx}.log &"
+                sub_host.cmd(full)
+                sub_specs.append((f"{sub_role}_s{s_idx}", sub_host, full))
+        return sub_specs
+
     def _drain_artifact(self, paths, logs_on_stdout, last, bytes_at_stop,
                         tag):
         """Shared post-kill drain loop for both teardown orders.
@@ -1006,9 +1077,31 @@ class MoQTestRun:
                     r_host.cmd(f"{r_cmd} > {log_path} 2>&1 &")
                 time.sleep(2)
 
+            # MOQ_SUB_FIRST=1 probe: subscribers launch BEFORE the publisher
+            # with no pub-ready gate (nothing published yet -- that is the
+            # point: the sub must be present at frame 0 for full delivery on
+            # relays without archive). Safe only where the sub tolerates an
+            # empty relay (moxygen FLV waits on SubscribeOk; moq-rs would
+            # burn a supervised restart, so never use it there).
+            sub_specs = []
+            if self.launch_order == "sub-first":
+                self._log("SUB-FIRST probe: starting subscriber(s) before "
+                          "publisher (no pub-ready gate) ...")
+                sub_specs = self._launch_subscribers(
+                    stream_name, media_path, last_relay_ip, last_relay_port,
+                    last_relay_path, self.num_streams)
+                # Pre-publish delay: the sub needs spawn + WT connect +
+                # subscribe (~5 s observed: 119 missed head frames) before
+                # frame 0 airs, or a no-archive relay serves a suffix.
+                # MOQ_PUB_DELAY_S (default 0 = historical behaviour).
+                if self.pub_delay_s > 0:
+                    self._log(f"SUB-FIRST probe: holding publisher "
+                              f"{self.pub_delay_s:g}s for sub join ...")
+                    time.sleep(self.pub_delay_s)
+
             self._log("Starting publisher...")
             pub_entry = self._get_entrypoint(self.config["pub"]["impl"], "pub")
-            num_streams = self.config.get("streams", 1)
+            num_streams = self.num_streams
             if pub_entry:
                 for s_idx in range(num_streams):
                     stream_name_s = f"{stream_name}_s{s_idx}" if num_streams > 1 else stream_name
@@ -1022,41 +1115,22 @@ class MoQTestRun:
 
             # B20 (see found-bugs.md): sub must join AFTER the pub announces,
             # or moq-rs sub dies instantly with `Track not found`.
-            self._wait_for_pub_ready()
+            # Skipped under MOQ_SUB_FIRST=1 (subs already up by design).
+            if self.launch_order != "sub-first":
+                self._wait_for_pub_ready()
 
-            # B7 fix: launch all subscriber roles (sub for basic/chain,
-            # sub1..subN for fanout/chainfanout). Each role resolves its own
-            # impl (mixed-impl fan-out via sub1..subN overrides, falling back
-            # to "sub") and its own output redirect.
-            sub_roles = [r for r in self.hosts if r.startswith("sub")]
-            self._log(f"Starting {len(sub_roles)} subscriber(s)...")
-            sub_specs = []
-            for sub_role in sub_roles:
-                role_cfg = self._sub_role_cfg(sub_role)
-                role_entry = self._get_entrypoint(role_cfg.get("impl", ""), "sub")
-                if not role_entry:
-                    continue
-                role_output_cfg = self._get_impl_config(role_cfg.get("impl", "")).get("sub_output", {})
-                sub_host = self.hosts[sub_role]
-                for s_idx in range(num_streams):
-                    stream_name_s = f"{stream_name}_s{s_idx}" if num_streams > 1 else stream_name
-                    sub_cmd = self._fill_entrypoint(role_entry, {
-                        "relay": last_relay_ip, "stream": stream_name_s,
-                        "port": last_relay_port, "dir": "/output", "file": media_path,
-                        "draft": role_cfg.get("draft") or "any",
-                        # Streaming baselines (lldash) skip aired segments
-                        # for late joiners; early subs join at 0.
-                        "join_delay": "0",
-                        "path": last_relay_path,
-                    })
-                    sub_redirect = self._sub_launch_redirect(role_output_cfg, stream_name_s, media_path)
-                    full = f"{sub_cmd} {sub_redirect} 2>/logs/{sub_role}_s{s_idx}.log &"
-                    sub_host.cmd(full)
-                    sub_specs.append((f"{sub_role}_s{s_idx}", sub_host, full))
+                # B7 fix: launch all subscriber roles (sub for basic/chain,
+                # sub1..subN for fanout/chainfanout). Each role resolves its own
+                # impl (mixed-impl fan-out via sub1..subN overrides, falling back
+                # to "sub") and its own output redirect.
+                sub_specs = self._launch_subscribers(
+                    stream_name, media_path, last_relay_ip, last_relay_port,
+                    last_relay_path, self.num_streams)
             # B38: moq-rs subs die permanently on an early "Track not
             # found" (relay track state lags namespace registration).
             # Supervise the join: on a death signature, rotate the log,
             # relaunch, and give the relay another chance -- bounded.
+            # Runs in both orders (sub-first subs may still need it).
             self._supervise_sub_joins(sub_specs)
 
             # I4 / D6: late-joiner subscribers - launch additional subs after a delay
@@ -1122,8 +1196,8 @@ class MoQTestRun:
                     late_cfg = self._sub_role_cfg(late_role)
                     late_entry = self._get_entrypoint(late_cfg.get("impl", ""), "sub")
                     late_output_cfg = self._get_impl_config(late_cfg.get("impl", "")).get("sub_output", {})
-                    for s_idx in range(num_streams):
-                        stream_name_s = f"{stream_name}_s{s_idx}" if num_streams > 1 else stream_name
+                    for s_idx in range(self.num_streams):
+                        stream_name_s = f"{stream_name}_s{s_idx}" if self.num_streams > 1 else stream_name
                         late_cmd = self._fill_entrypoint(late_entry, {
                             "relay": last_relay_ip, "stream": stream_name_s,
                             "port": last_relay_port, "dir": "/output", "file": media_path,
@@ -1155,8 +1229,8 @@ class MoQTestRun:
                     late_cfg = self._sub_role_cfg(late_role)
                     late_entry = self._get_entrypoint(late_cfg.get("impl", ""), "sub")
                     late_output_cfg = self._get_impl_config(late_cfg.get("impl", "")).get("sub_output", {})
-                    for s_idx in range(num_streams):
-                        stream_name_s = f"{stream_name}_s{s_idx}" if num_streams > 1 else stream_name
+                    for s_idx in range(self.num_streams):
+                        stream_name_s = f"{stream_name}_s{s_idx}" if self.num_streams > 1 else stream_name
                         late_cmd = self._fill_entrypoint(late_entry, {
                             "relay": last_relay_ip, "stream": stream_name_s,
                             "port": last_relay_port, "dir": "/output", "file": media_path,
@@ -1435,6 +1509,8 @@ class MoQTestRun:
                 "stop_drain_default_s": self.STOP_DRAIN_S,
                 "order": getattr(self, "teardown_order", "pub-first"),
             },
+            "launch_order": getattr(self, "launch_order", "pub-first"),
+            "pub_delay_s": getattr(self, "pub_delay_s", 0.0),
         }
         with open(self.run_dir / "metadata.json", "w") as f:
             json.dump(meta, f, indent=2)
@@ -1969,6 +2045,38 @@ class MoQTestRun:
             result["stats"]["delivered_full"] = (
                 coverage_pct is None or coverage_pct >= completion_coverage
             )
+            # Worst-subscriber rule (fanout/chainfanout, MoQ only): one
+            # healthy viewer must not hide starving ones (run_20260910_113155:
+            # moq-rs relay serves 1 of N subscribers, rest 0 B, yet the row
+            # read pass on the SUM). Status follows the WORST subscriber,
+            # never the aggregate: worst at zero bytes reads fail (same bar
+            # as the zero-byte interop cells), worst short-but-correct reads
+            # partial, all full reads pass. Single-subscriber topologies,
+            # lldash streaming rows (segment-scored, whole-file bytes do not
+            # apply) and object_receipt plans keep the legacy behavior
+            # exactly.
+            result["stats"]["worst_sub_role"] = None
+            result["stats"]["worst_sub_coverage_pct"] = None
+            if (self.topology_type in ("fanout", "chainfanout")
+                    and len(groups) > 1
+                    and not str(self.config.get("sub", {}).get("impl", "")).startswith("lldash")):
+                denom = verify.get("expected_bytes") or original_bytes
+                worst_role, worst_cov = None, None
+                for role in groups:
+                    entry = (verify.get("per_sub") or {}).get(role) or {}
+                    got = entry.get("media_bytes")
+                    if got is None:
+                        got = entry.get("artifact_bytes") or 0
+                    cov = (100.0 * got / denom) if denom else None
+                    if worst_cov is None or (cov is not None and cov < worst_cov):
+                        worst_cov, worst_role = cov, role
+                result["stats"]["worst_sub_role"] = worst_role
+                result["stats"]["worst_sub_coverage_pct"] = (
+                    round(worst_cov, 2) if worst_cov is not None else None)
+                if worst_cov is not None:
+                    result["stats"]["delivered_full"] = (
+                        worst_cov >= completion_coverage)
+                    result["checks"]["all_subs_served"] = worst_cov > 0
         # Subscribers can be quiet on stderr (imquic prints nothing on success),
         # so an empty sub.log is NOT a failure — but a log that shows a timeout
         # or usage dump IS. Only the real-artifact check decides delivery.

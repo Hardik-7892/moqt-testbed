@@ -1,0 +1,2 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+d18-fanout-2sub-1seg,1,fail,mismatch,6578.0,6578.0,1,26.168,26.168,1,1,0.996826,,,0,6531.301289566237,6531.301289566237,1

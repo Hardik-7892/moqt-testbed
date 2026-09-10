@@ -1,0 +1,48 @@
+Plan: moq-vs-lldash
+Total: 16
+Pass:  12
+Partial: 0
+Fail:  4
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+moq-clean                                                    fail       903269/904457 (99.87%) [100.0% exp] sha mismatch 10.01% identical 27.7         quiesced              
+    sub: artifact=903210 B, media=903210 B, mlog=903269, prefix=10.01%, verdict=mismatch
+h2-clean                                                     pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+h3-clean                                                     pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+moq-loss1                                                    pass       903269/904457 (99.87%) [100.0% exp] good 99.99%            25.1         quiesced              
+    sub: artifact=903210 B, media=903210 B, mlog=903269, prefix=99.99%, verdict=good
+h2-loss1                                                     pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+h3-loss1                                                     pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+moq-bw5                                                      fail       903269/904457 (99.87%) [100.0% exp] sha mismatch 11.57% identical 7.5          quiesced              
+    sub: artifact=888436 B, media=888436 B, mlog=903269, prefix=11.57%, verdict=mismatch
+h2-bw5                                                       pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+h3-bw5                                                       pass       907397/904457 (100.33%) [100.46% exp] sha match              -            quiesced              
+    sub: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+moq-fanout-3                                                 fail       903269/904457 (99.87%) [full 1/3] sha mismatch 0.0% identical 29.9         quiesced              
+    sub1: artifact=903210 B, media=903210 B, mlog=-, prefix=99.99%, verdict=mismatch
+    sub2: artifact=0 B, media=0 B, mlog=-, prefix=0.0%, verdict=mismatch
+    sub3: artifact=0 B, media=0 B, mlog=-, prefix=0.0%, verdict=mismatch
+h2-fanout-3                                                  pass       2722191/904457 (300.98%) [full 3/3] sha match              -            quiesced              
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub3: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+h3-fanout-3                                                  pass       2722191/904457 (300.98%) [full 3/3] sha match              -            quiesced              
+    sub1: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub2: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+    sub3: artifact=907397 B, media=907397 B, mlog=-, prefix=100.0%, verdict=exact
+moq-clean-10s                                                pass       107733/107971 (99.78%) [100.0% exp] good 99.74%            12.7         quiesced              
+    sub: artifact=107457 B, media=107457 B, mlog=107733, prefix=99.74%, verdict=good
+h2-clean-10s                                                 pass       108701/107971 (100.68%) [100.9% exp] sha match              -            quiesced              
+    sub: artifact=108701 B, media=108701 B, mlog=-, prefix=100.0%, verdict=exact
+h3-clean-10s                                                 pass       108701/107971 (100.68%) [100.9% exp] sha match              -            quiesced              
+    sub: artifact=108701 B, media=108701 B, mlog=-, prefix=100.0%, verdict=exact
+moq-fanout-10s                                               fail       107733/107971 (99.78%) [full 1/3] sha mismatch 0.0% identical 11.9         quiesced              
+    sub1: artifact=107457 B, media=107457 B, mlog=-, prefix=99.74%, verdict=mismatch
+    sub2: artifact=0 B, media=0 B, mlog=-, prefix=0.0%, verdict=mismatch
+    sub3: artifact=0 B, media=0 B, mlog=-, prefix=0.0%, verdict=mismatch

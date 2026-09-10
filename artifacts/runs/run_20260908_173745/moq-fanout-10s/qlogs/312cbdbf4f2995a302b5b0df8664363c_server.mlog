@@ -1,0 +1,4 @@
+{"qlog_version":"0.3","qlog_format":"JSON-SEQ","title":"moq-relay","description":"MoQ Transport events","trace":{"vantage_point":{"type":"server"},"event_schemas":["urn:ietf:params:qlog:events:loglevel","urn:ietf:params:qlog:events:moqt"]}}
+{"time":27.774009999999997,"name":"moqt:control_message_parsed","data":{"event_type":"control_message_parsed","stream_id":0,"message_type":"client_setup","parameters":[]}}
+{"time":27.788683000000002,"name":"moqt:control_message_created","data":{"event_type":"control_message_created","stream_id":0,"message_type":"server_setup","parameters":[]}}
+{"time":56.736218,"name":"moqt:control_message_created","data":{"event_type":"control_message_created","stream_id":0,"message_type":"subscribe_ok","subscribe_id":0,"track_alias":0,"parameters":[["9","[00 00]"]],"track_extensions":[]}}

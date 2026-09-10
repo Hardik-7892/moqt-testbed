@@ -1,0 +1,9 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+fanout-imquic-3sub,1,pass,mismatch,7617.0,7617.0,1,77.653,77.653,1,1,0.180437,1.0,1.0,1,7617.595307917888,7617.595307917888,1
+fanout-mixed-moqrs-imquic,1,fail,mismatch,41296.0,41296.0,1,36.1263,36.1263,1,1,0.997796,,,0,530.1389554384283,530.1389554384283,1
+fanout-moqrs-2sub,1,pass,mismatch,278020.0,278020.0,1,26.7481,26.7481,1,1,0.997796,,,0,277308.3870967742,277308.3870967742,1
+fanout-moqrs-3sub,1,pass,mismatch,274478.0,274478.0,1,26.4975,26.4975,1,1,0.997796,,,0,273775.79617834394,273775.79617834394,1
+fanout-moqrs-3sub-loss1pct,1,pass,mismatch,232308.0,232308.0,1,69.7166,69.7166,1,1,0.997796,,,0,231713.20754716982,231713.20754716982,1
+fanout-moqrs-late-join-5s,1,pass,mismatch,267659.0,267659.0,1,8.3593,8.3593,1,1,0.997796,,,0,266973.9130434783,266973.9130434783,1
+fanout-moxygen-3sub,1,fail,mismatch,0.0,0.0,1,,,0,1,0.0,,,0,,,0
+fanout-moxygen-late-join-5s,1,fail,mismatch,0.0,0.0,1,,,0,1,0.0,,,0,,,0

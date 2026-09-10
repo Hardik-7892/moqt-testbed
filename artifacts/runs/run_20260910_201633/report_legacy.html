@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MoQT Interop Test Report (Legacy)</title>
+<style>
+body { font-family: monospace; margin: 20px; }
+table { border-collapse: collapse; }
+td, th { padding: 6px 10px; text-align: center; }
+.pass { background: #4caf50; color: white; }
+.fail { background: #f44336; color: white; }
+.partial { background: #ff9800; color: white; }
+.skip { background: #9e9e9e; color: white; }
+.tp { background: #2e7d32; color: white; }
+.tn { background: #1565c0; color: white; }
+.fp { background: #c62828; color: white; }
+.fn { background: #ef6c00; color: white; }
+h2 { margin-top: 30px; }
+</style>
+</head>
+<body>
+<h1>MoQT Interop Test Report</h1>
+<p>Plan: <b>draft16-probe</b></p>
+<p>Timestamp: <b>2026-09-10T20:19:38.853114+00:00</b></p>
+<p>Total: <b>3</b> | Pass: <b style='color:green'>2</b> | Partial: <b style='color:orange'>1</b> | Fail: <b style='color:red'>0</p>
+<h2>Confusion Matrix (I1)</h2>
+<table border='1'>
+<tr><th></th><th>Predicted Pass</th><th>Predicted Fail</th></tr>
+<tr><th>Actual Pass</th><td class='tp'>1 TP</td><td class='fn'>0 FN</td></tr>
+<tr><th>Actual Fail</th><td class='fp'>1 FP</td><td class='tn'>0 TN</td></tr>
+</table>
+<p>TP=True Positive, TN=True Negative, FP=False Positive, FN=False Negative</p>
+<h2>Interop Matrix</h2>
+<table border='1'><tr><th>Relay</th><th>moq-rs → moq-rs</th></tr><tr><td><b>moq-rs</b></td><td class='partial'>partial</td></tr></table><h2>Detailed Results</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Status</th><th>Expected</th><th>Confusion</th><th>Pub</th><th>Relay</th><th>Sub</th><th>Network</th><th>Delivered</th><th>Integrity</th><th>Objects pub/recv</th><th>RTT (ms)</th><th>Throughput</th></tr>
+<tr><td>d16-basic-1seg</td><td class='pass'>pass</td><td>pass</td><td class='tp'>TP</td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td>bw=? d=? l=?%</td><td>99.68% <span title='coverage vs expected media (21043 B, trailing boxes excluded)'>[100.0% exp]</span></td><td>good 99.28%</td><td>2/None</td><td>10.9909</td><td>0.06 Mbps</td></tr>
+<tr><td>d16-fanout-2sub-1seg</td><td class='pass'>pass</td><td>pass</td><td class='fp'>FP</td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td>bw=? d=? l=?%</td><td>199.37% <span title='subscribers served the full stream'>[full 2/2]</span></td><td>good 99.28%</td><td>2/None</td><td>8.3875</td><td>0.01 Mbps</td></tr>
+<tr><td>d16-fanout-2sub-mirror</td><td class='partial'>partial</td><td>pass</td><td class=''>?</td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td>bw=? d=? l=?%</td><td>21.33% <span title='subscribers served the full stream'>[full 0/2]</span></td><td>sha ✗ 0.75% identical</td><td>11/None</td><td>57.0406</td><td>0.00 Mbps</td></tr>
+</table>
+<h2>Per-Subscriber Delivery</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Subscriber</th><th>Artifact (B)</th><th>Media (B)</th><th>mlog (B)</th><th>Prefix identical</th><th>Segments</th><th>Verdict</th></tr>
+<tr><td>d16-basic-1seg</td><td>sub</td><td>20892</td><td>20892</td><td>21043</td><td>99.28%</td><td>-</td><td>good</td></tr>
+<tr><td>d16-fanout-2sub-1seg</td><td>sub1</td><td>20892</td><td>20892</td><td>21043</td><td>99.28%</td><td>-</td><td>good</td></tr>
+<tr><td>d16-fanout-2sub-1seg</td><td>sub2</td><td>20892</td><td>20892</td><td>21043</td><td>99.28%</td><td>-</td><td>good</td></tr>
+<tr><td>d16-fanout-2sub-mirror</td><td>sub1</td><td>11241</td><td>11241</td><td>11517</td><td>0.75%</td><td>-</td><td>mismatch</td></tr>
+<tr><td>d16-fanout-2sub-mirror</td><td>sub2</td><td>11241</td><td>11241</td><td>11517</td><td>0.75%</td><td>-</td><td>mismatch</td></tr>
+</table>
+<h2>Integrity Detail</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Expected (init/segments)</th><th>Received (mlog)</th><th>Per-object match</th><th>Delivered</th><th>Expected SHA</th><th>Delivered SHA</th></tr>
+<tr><td>d16-basic-1seg</td><td>init=769+seg=20274</td><td>769+20274</td><td>✓</td><td>21043</td><td>417729c23f5cc5dfa0eb3138c2de6a9cc7b27994a3127fd040aa6b7cb37e3d1f</td><td>ae7430ae8b0b2ea77c059cb76cfc065c4e4f1660a7581cf70939eafc12127987</td></tr>
+<tr><td>d16-fanout-2sub-1seg</td><td>init=769+seg=20274</td><td>769+20274</td><td>-</td><td>42086</td><td>417729c23f5cc5dfa0eb3138c2de6a9cc7b27994a3127fd040aa6b7cb37e3d1f</td><td>None</td></tr>
+<tr><td>d16-fanout-2sub-mirror</td><td>init=786+seg=10697+seg=10712+seg=10669+seg=10642+seg=10615+seg=10569+seg=10969+seg=10611+seg=10732+seg=10731</td><td>786+10731</td><td>-</td><td>23034</td><td>c2b07dd6bd23cd9a78ec34cc7e5ff6c4d843d6284ab6aad652625e1880b71c19</td><td>None</td></tr>
+</table>
+</body>
+</html>

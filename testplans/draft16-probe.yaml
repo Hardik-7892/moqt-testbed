@@ -1,0 +1,48 @@
+name: "draft16-probe"
+description: >
+  One-off draft-16 pin probe: does the single-consumer fanout reproduce on
+  moq-rs d16 (commit 2d16c9c8)? Row 1 is the single-sub baseline on the easy
+  1-seg media (d16's sample.mp4 baseline only reaches ~10% cover per
+  moqrs-self_agg_20260908_133402.csv, so fanout on sample.mp4 alone could
+  not separate relay fanout from weak delivery). Row 2 is N=2 fanout on the
+  same 1-seg media to the full window (quiesce off via quiet_period). Row 3
+  is the exact mirror of the d18 fanout-verify conditions (sample.mp4, N=2,
+  full window) with the image pin as the only variable. Local moq-rs/*:16
+  tags; same-impl trio negotiates moqt-16.
+topology: "basic"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 25
+runs:
+  - id: "d16-basic-1seg"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    relay: { impl: "moq-rs", draft: 16, tag: "moq-rs/relay:16" }
+    sub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    test_duration: 15
+    expect: pass
+    reason: "d16 single-sub baseline on easy media; gates the fanout read"
+
+  - id: "d16-fanout-2sub-1seg"
+    topology: "fanout"
+    media: sample_1seg.mp4
+    pub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    relay: { impl: "moq-rs", draft: 16, tag: "moq-rs/relay:16" }
+    sub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    test_duration: 25
+    network: { num_subscribers: 2, quiet_period: 9999 }
+    expect: fail
+    reason: "hypothesis: same 1/2 single-consumer as d18; pass means d18-pin regression"
+
+  - id: "d16-fanout-2sub-mirror"
+    topology: "fanout"
+    pub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    relay: { impl: "moq-rs", draft: 16, tag: "moq-rs/relay:16" }
+    sub: { impl: "moq-rs", draft: 16, tag: "moq-rs/client:16" }
+    test_duration: 25
+    network: { num_subscribers: 2, quiet_period: 9999 }
+    expect: fail
+    reason: "exact mirror of d18 fanout-verify (sample.mp4, N=2, full window); pin is the only variable"

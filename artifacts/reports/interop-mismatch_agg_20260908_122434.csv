@@ -1,0 +1,5 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+mismatch-d14pub-d16relay,1,fail,mismatch,0.0,0.0,1,42.8122,42.8122,1,1,0.0,,,0,,,0
+mismatch-d14pub-d18relay,1,fail,mismatch,0.0,0.0,1,17.6986,17.6986,1,1,0.0,,,0,,,0
+mismatch-d16pub-d18relay,1,fail,mismatch,0.0,0.0,1,59.2823,59.2823,1,1,0.0,,,0,,,0
+mismatch-d18pub-d14relay,1,fail,mismatch,0.0,0.0,1,41.9516,41.9516,1,1,0.0,,,0,,,0

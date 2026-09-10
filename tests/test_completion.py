@@ -256,7 +256,86 @@ def test_evaluate_fail_with_no_media(tmp_path):
     assert result["checks"]["sub_received_data"] is False
     assert result["status"] == "fail"
 
+# --- Worst-subscriber rule (fanout/chainfanout, MoQ): run_20260910_113155 ---
+# The moq-rs relay serves 1 of N subscribers while the rest sit at 0 B, yet
+# the row read pass on SUM-based coverage. Status must follow the WORST
+# subscriber: zero-byte worst reads fail, short-but-correct worst reads
+# partial, all full reads pass. Single-subscriber rows keep legacy behavior
+# (covered by the B24 tests above).
+
+
+def _write_fanout_run(tmp_path, per_sub_sizes, media="sample.mp4"):
+    """Fanout run with N subscribers holding the given artifact sizes.
+
+    sub artifacts carry FLV magic so they count as real media; a zero size
+    writes an empty file (starved viewer). Returns the MoQTestRun.
+    """
+    n = len(per_sub_sizes)
+    net = dict(TOP, num_subscribers=n)
+    run_config = {
+        "id": "test-fanout-1",
+        "topology": "fanout",
+        "pub": {"impl": "moq-rs", "draft": 18, "tag": "moq-rs/client:18"},
+        "relay": {"impl": "moq-rs", "draft": 18, "tag": "moq-rs/relay:18"},
+        "sub": {"impl": "moq-rs", "draft": 18, "tag": "moq-rs/client:18"},
+        "network": net,
+    }
+    run = MoQTestRun(run_config, TOP, tmp_path / "batch", media_file=media,
+                     default_test_duration=15)
+    run.logs_dir.mkdir(parents=True, exist_ok=True)
+    run.output_dir.mkdir(parents=True, exist_ok=True)
+    for i, size in enumerate(per_sub_sizes, start=1):
+        role_dir = run.output_dir / f"sub{i}"
+        role_dir.mkdir(parents=True, exist_ok=True)
+        if size > 0:
+            (role_dir / "test-fanout-1").write_bytes(b"FLV" + b"x" * size)
+        else:
+            (role_dir / "test-fanout-1").write_bytes(b"")
+        (run.logs_dir / f"sub{i}_s0.log").write_text("ok\n")
+    for name in ("pub.log", "relay.log"):
+        (run.logs_dir / name).write_text("ok\n")
+    run.completed = True
+    run.completion_reason = "delivery quiesced"
+    run.run_duration_s = 3.0
+    return run
+
+
+def _full_size():
+    src = Path(__file__).resolve().parent.parent / "testdata" / "sample.mp4"
+    expected = src.stat().st_size if src.exists() else 7885
+    return int(expected * 0.95) + 10
+
+
+def test_evaluate_fanout_starved_worst_reads_fail(tmp_path):
+    # 1 of 2 served (the run_20260910_113155 shape): fail, not pass.
+    run = _write_fanout_run(tmp_path, [_full_size(), 0])
+    result = run.evaluate()
+    assert result["status"] == "fail"
+    assert result["stats"]["delivered_full"] is False
+    assert result["checks"]["all_subs_served"] is False
+    assert result["stats"]["worst_sub_role"] == "sub2"
+
+
 # --- B37 addendum: publisher first-segment join gate ---
+    assert result["stats"]["worst_sub_coverage_pct"] == 0
+
+
+def test_evaluate_fanout_all_served_passes(tmp_path):
+    run = _write_fanout_run(tmp_path, [_full_size(), _full_size()])
+    result = run.evaluate()
+    assert result["status"] == "pass"
+    assert result["stats"]["delivered_full"] is True
+    assert result["checks"]["all_subs_served"] is True
+
+
+def test_evaluate_fanout_short_worst_reads_partial(tmp_path):
+    # Worst viewer short-but-correct (real bytes below bar): partial.
+    run = _write_fanout_run(tmp_path, [_full_size(), 60])
+    result = run.evaluate()
+    assert result["status"] == "partial"
+    assert result["stats"]["delivered_full"] is False
+    assert result["checks"]["all_subs_served"] is True
+    assert result["stats"]["worst_sub_role"] == "sub2"
 
 class TestPubSegmentGate:
     """_wait_for_pub_ready must gate the sub join on the publisher's own

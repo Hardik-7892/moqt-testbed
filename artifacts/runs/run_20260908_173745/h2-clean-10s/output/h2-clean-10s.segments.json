@@ -1,0 +1,45 @@
+{
+ "protocol": "h2",
+ "join_delay_s": 0.0,
+ "segment_duration_s": 2.0,
+ "mpd": "sample.mpd",
+ "init": {
+  "name": "sample10-init.m4s",
+  "bytes": 834,
+  "sha256": "84075c0c1b226587c862fdf0f63247ef574f540c82ac5538b4ad8860e110ef2d"
+ },
+ "total_segments": 5,
+ "skipped": 0,
+ "skipped_names": [],
+ "segments": [
+  {
+   "name": "sample10-chunk-00001.m4s",
+   "bytes": 21593,
+   "sha256": "a9e86d6a302a61a587169cd6075b4be45aa8fe29e1473036d59ca08b1ec833a1"
+  },
+  {
+   "name": "sample10-chunk-00002.m4s",
+   "bytes": 21495,
+   "sha256": "19f7c6abd9b7a90e48cd7dab7a84ae914d456e82bfdaf9ba9a5d2ac12757c708"
+  },
+  {
+   "name": "sample10-chunk-00003.m4s",
+   "bytes": 21368,
+   "sha256": "438201a591c967eb55c40c02a4e3d34e41a6eaa1dd524749bb9bcb9753b2473c"
+  },
+  {
+   "name": "sample10-chunk-00004.m4s",
+   "bytes": 21764,
+   "sha256": "bc6f88deb63ce7c15cbeef14c1413291cf3b17b12de3df70127c188a302ba9ec"
+  },
+  {
+   "name": "sample10-chunk-00005.m4s",
+   "bytes": 21647,
+   "sha256": "aad89a4ed1247b2259d0d6b5e0519105276a313c09365f8b9408bd77e11e078f"
+  }
+ ],
+ "fetched": 5,
+ "fetch_protos": {
+  "HTTP/2": 6
+ }
+}

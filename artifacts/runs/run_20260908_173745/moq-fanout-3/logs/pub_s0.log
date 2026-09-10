@@ -1,0 +1,85 @@
+[2m2026-09-08T17:44:39.188266Z[0m [32m INFO[0m [2mmoq_native_ietf::quic[0m[2m:[0m UDP socket bound [3mbind[0m[2m=[0m[::]:0 [3mlocal[0m[2m=[0m[::]:42693 [3mdual_stack[0m[2m=[0mtrue
+[2m2026-09-08T17:44:39.195282Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connecting to relay: url=https://10.0.0.2:4443/
+[2m2026-09-08T17:44:39.263079Z[0m [32m INFO[0m [2mmoq_pub[0m[2m:[0m connected with CID: 5b688534f55b2c297cfc18b1df3ca0af (use this to look up qlog/mlog on server)
+[2m2026-09-08T17:44:39.272650Z[0m [32m INFO[0m [2mmoq_pub::media[0m[2m:[0m catalog: {
+  "version": 1,
+  "streamingFormat": 1,
+  "streamingFormatVersion": "0.2",
+  "supportsDeltaUpdates": true,
+  "commonTrackFields": {
+    "namespace": "/moq-fanout-3",
+    "packaging": "cmaf",
+    "renderGroup": 1
+  },
+  "tracks": [
+    {
+      "name": "1.m4s",
+      "initTrack": "0.mp4",
+      "selectionParams": {
+        "codec": "avc1.64000D",
+        "width": 320,
+        "height": 240
+      }
+    }
+  ]
+}
+timestamp: 0 segment: 0:0 priority: 127
+timestamp: 30720 segment: 1:0 priority: 127
+timestamp: 61440 segment: 2:0 priority: 127
+timestamp: 92160 segment: 3:0 priority: 127
+timestamp: 122880 segment: 4:0 priority: 127
+timestamp: 153600 segment: 5:0 priority: 127
+timestamp: 184320 segment: 6:0 priority: 127
+timestamp: 215040 segment: 7:0 priority: 127
+timestamp: 245760 segment: 8:0 priority: 127
+timestamp: 276480 segment: 9:0 priority: 127
+timestamp: 307200 segment: 10:0 priority: 127
+timestamp: 337920 segment: 11:0 priority: 127
+timestamp: 368640 segment: 12:0 priority: 127
+timestamp: 399360 segment: 13:0 priority: 127
+timestamp: 430080 segment: 14:0 priority: 127
+timestamp: 460800 segment: 15:0 priority: 127
+timestamp: 491520 segment: 16:0 priority: 127
+timestamp: 522240 segment: 17:0 priority: 127
+timestamp: 552960 segment: 18:0 priority: 127
+timestamp: 583680 segment: 19:0 priority: 127
+timestamp: 614400 segment: 20:0 priority: 127
+timestamp: 645120 segment: 21:0 priority: 127
+timestamp: 675840 segment: 22:0 priority: 127
+timestamp: 706560 segment: 23:0 priority: 127
+timestamp: 737280 segment: 24:0 priority: 127
+timestamp: 768000 segment: 25:0 priority: 127
+timestamp: 798720 segment: 26:0 priority: 127
+timestamp: 829440 segment: 27:0 priority: 127
+timestamp: 860160 segment: 28:0 priority: 127
+timestamp: 890880 segment: 29:0 priority: 127
+timestamp: 921600 segment: 30:0 priority: 127
+timestamp: 952320 segment: 31:0 priority: 127
+timestamp: 983040 segment: 32:0 priority: 127
+timestamp: 1013760 segment: 33:0 priority: 127
+timestamp: 1044480 segment: 34:0 priority: 127
+timestamp: 1075200 segment: 35:0 priority: 127
+timestamp: 1105920 segment: 36:0 priority: 127
+timestamp: 1136640 segment: 37:0 priority: 127
+timestamp: 1167360 segment: 38:0 priority: 127
+timestamp: 1198080 segment: 39:0 priority: 127
+timestamp: 1228800 segment: 40:0 priority: 127
+timestamp: 1259520 segment: 41:0 priority: 127
+timestamp: 1290240 segment: 42:0 priority: 127
+timestamp: 1320960 segment: 43:0 priority: 127
+timestamp: 1351680 segment: 44:0 priority: 127
+timestamp: 1382400 segment: 45:0 priority: 127
+timestamp: 1413120 segment: 46:0 priority: 127
+timestamp: 1443840 segment: 47:0 priority: 127
+timestamp: 1474560 segment: 48:0 priority: 127
+timestamp: 1505280 segment: 49:0 priority: 127
+timestamp: 1536000 segment: 50:0 priority: 127
+timestamp: 1566720 segment: 51:0 priority: 127
+timestamp: 1597440 segment: 52:0 priority: 127
+timestamp: 1628160 segment: 53:0 priority: 127
+timestamp: 1658880 segment: 54:0 priority: 127
+timestamp: 1689600 segment: 55:0 priority: 127
+timestamp: 1720320 segment: 56:0 priority: 127
+timestamp: 1751040 segment: 57:0 priority: 127
+timestamp: 1781760 segment: 58:0 priority: 127
+timestamp: 1812480 segment: 59:0 priority: 127

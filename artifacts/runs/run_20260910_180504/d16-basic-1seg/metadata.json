@@ -1,0 +1,42 @@
+{
+  "run_id": "d16-basic-1seg",
+  "timestamp": "2026-09-10T18:05:04.633271+00:00",
+  "config": {
+    "id": "d16-basic-1seg",
+    "media": "sample_1seg.mp4",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/client:16"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/relay:16"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 16,
+      "tag": "moq-rs/client:16"
+    },
+    "test_duration": 15,
+    "expect": "pass",
+    "reason": "d16 single-sub baseline on easy media; gates the fanout read",
+    "topology": "basic"
+  },
+  "network": {
+    "bw": 100,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  },
+  "teardown": {
+    "stop_grace_s": 3.0,
+    "stop_grace_default_s": 3.0,
+    "stop_drain_s": 12.0,
+    "stop_drain_default_s": 12.0,
+    "order": "pub-first"
+  },
+  "launch_order": "pub-first",
+  "pub_delay_s": 0.0
+}

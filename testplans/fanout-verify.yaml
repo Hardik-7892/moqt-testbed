@@ -1,0 +1,23 @@
+name: "fanout-verify"
+description: >
+  Single-row referee check after the worst-subscriber fix. One N=2 moq-rs
+  fanout row run to the FULL time limit (quiesce disabled via a huge
+  quiet_period) so a slow second viewer cannot be blamed on early teardown.
+  If sub2 still reads 0 B after the full window, the starvation is
+  relay-side (single-consumer at this pin), not a harness race. Expects fail
+  under the worst-subscriber rule (1/2 served, worst viewer zero bytes).
+topology: "fanout"
+network_defaults:
+  bw: 100
+  delay: "10ms"
+  loss: 0
+  max_queue_size: 1000
+test_duration: 25
+runs:
+  - id: "fanout-verify-2sub-fullwindow"
+    pub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    relay: { impl: "moq-rs", draft: 18, tag: "moq-rs/relay:18" }
+    sub: { impl: "moq-rs", draft: 18, tag: "moq-rs/client:18" }
+    network: { num_subscribers: 2, quiet_period: 9999 }
+    expect: fail
+    reason: "worst-subscriber referee check: 1/2 served must read fail"

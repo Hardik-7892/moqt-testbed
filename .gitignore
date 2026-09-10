@@ -1,5 +1,9 @@
-# Testbed ignores: runs, media blobs, keys, logs, caches
-artifacts/
+# Testbed ignores: runs, media blobs, keys, logs, caches.
+# NOTE: bare "artifacts/" would make the reports/*.csv negation below dead
+# (git never descends into excluded dirs), so the exclusion is spelled out.
+artifacts/*
+!artifacts/reports/
+artifacts/reports/*
 !artifacts/reports/*.csv
 artifacts/reports/*.log
 *.qlog

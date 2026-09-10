@@ -1,0 +1,2 @@
+[2m2026-09-10T17:21:21.569357Z[0m [32m INFO[0m [2mmoq_native_ietf::quic[0m[2m:[0m UDP socket bound [3mbind[0m[2m=[0m[::]:0 [3mlocal[0m[2m=[0m[::]:58837 [3mdual_stack[0m[2m=[0mtrue
+[2m2026-09-10T17:21:21.835351Z[0m [32m INFO[0m [2mmoq_sub[0m[2m:[0m connected with CID: 766566cf74b57bc9e56f93787bb413dc (use this to look up qlog/mlog on server)

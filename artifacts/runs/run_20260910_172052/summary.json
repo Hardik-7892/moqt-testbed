@@ -1,0 +1,294 @@
+{
+  "plan": "fanout-verify",
+  "timestamp": "2026-09-10T17:22:15.102469+00:00",
+  "total": 1,
+  "passed": 0,
+  "partial": 0,
+  "failed": 1,
+  "results": [
+    {
+      "run_id": "fanout-verify-2sub-fullwindow",
+      "config": {
+        "id": "fanout-verify-2sub-fullwindow",
+        "pub": {
+          "impl": "moq-rs",
+          "draft": 18,
+          "tag": "moq-rs/client:18"
+        },
+        "relay": {
+          "impl": "moq-rs",
+          "draft": 18,
+          "tag": "moq-rs/relay:18"
+        },
+        "sub": {
+          "impl": "moq-rs",
+          "draft": 18,
+          "tag": "moq-rs/client:18"
+        },
+        "network": {
+          "num_subscribers": 2,
+          "quiet_period": 9999
+        },
+        "expect": "fail",
+        "reason": "worst-subscriber referee check: 1/2 served must read fail",
+        "topology": "fanout"
+      },
+      "network": {
+        "bw": 100,
+        "delay": "10ms",
+        "loss": 0,
+        "max_queue_size": 1000,
+        "num_subscribers": 2,
+        "quiet_period": 9999
+      },
+      "start_time": "2026-09-10T17:20:53.367942+00:00",
+      "status": "fail",
+      "errors": [],
+      "metrics": {
+        "setup_time_ms": null,
+        "time_to_first_object_ms": null,
+        "objects_published": 11,
+        "objects_received": null,
+        "object_loss_rate": null,
+        "throughput_bps": 34323,
+        "jitter_ms": null,
+        "rtt_estimate_ms": 25.2015,
+        "rtt_min_ms": 5.2,
+        "rtt_max_ms": 333.0,
+        "packets_sent": 168,
+        "packets_received": 162,
+        "packets_lost": 0,
+        "packet_loss_rate": 0.0,
+        "wire_total_packets": 0,
+        "wire_total_bytes": 0,
+        "wire_quic_packets": 0,
+        "wire_quic_bytes": 0,
+        "wire_rtt_estimate_ms": null,
+        "wire_rtt_min_ms": null,
+        "wire_rtt_max_ms": null,
+        "wire_decryption_success": false,
+        "wire_error": null,
+        "delivered_bytes": 107733,
+        "delivered_fraction": 0.997796
+      },
+      "end_time": "2026-09-10T17:22:11.546078+00:00",
+      "evaluation": {
+        "run_id": "fanout-verify-2sub-fullwindow",
+        "status": "fail",
+        "checks": {
+          "relay_running": true,
+          "pub_started": true,
+          "sub_started": true,
+          "integrity_checked": true,
+          "sub_received_data": true,
+          "all_subs_served": false
+        },
+        "stats": {
+          "delivered_bytes": 107733,
+          "artifact_bytes": 107457,
+          "original_bytes": 107971,
+          "coverage_pct": 99.78,
+          "expected_media_bytes": 107733,
+          "expected_coverage_pct": 100.0,
+          "integrity": {
+            "expected_bytes": 107733,
+            "delivered_bytes": 107733,
+            "expected_objects": [
+              {
+                "kind": "init",
+                "bytes": 786
+              },
+              {
+                "kind": "segment",
+                "bytes": 10697
+              },
+              {
+                "kind": "segment",
+                "bytes": 10712
+              },
+              {
+                "kind": "segment",
+                "bytes": 10669
+              },
+              {
+                "kind": "segment",
+                "bytes": 10642
+              },
+              {
+                "kind": "segment",
+                "bytes": 10615
+              },
+              {
+                "kind": "segment",
+                "bytes": 10569
+              },
+              {
+                "kind": "segment",
+                "bytes": 10969
+              },
+              {
+                "kind": "segment",
+                "bytes": 10611
+              },
+              {
+                "kind": "segment",
+                "bytes": 10732
+              },
+              {
+                "kind": "segment",
+                "bytes": 10731
+              }
+            ],
+            "received_objects": [
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 786
+              },
+              {
+                "group": 0,
+                "object": 0,
+                "bytes": 10697
+              },
+              {
+                "group": 1,
+                "object": 0,
+                "bytes": 10712
+              },
+              {
+                "group": 2,
+                "object": 0,
+                "bytes": 10669
+              },
+              {
+                "group": 3,
+                "object": 0,
+                "bytes": 10642
+              },
+              {
+                "group": 4,
+                "object": 0,
+                "bytes": 10615
+              },
+              {
+                "group": 5,
+                "object": 0,
+                "bytes": 10569
+              },
+              {
+                "group": 6,
+                "object": 0,
+                "bytes": 10969
+              },
+              {
+                "group": 7,
+                "object": 0,
+                "bytes": 10611
+              },
+              {
+                "group": 8,
+                "object": 0,
+                "bytes": 10732
+              },
+              {
+                "group": 9,
+                "object": 0,
+                "bytes": 10731
+              }
+            ],
+            "per_object_match": null,
+            "sha256_expected": "c2b07dd6bd23cd9a78ec34cc7e5ff6c4d843d6284ab6aad652625e1880b71c19",
+            "sha256_delivered": null,
+            "sha256_match": null,
+            "byte_identical_bytes": null,
+            "byte_identical_pct": 0.0,
+            "verdict": "mismatch",
+            "per_sub": {
+              "sub1": {
+                "role": "sub1",
+                "artifact_bytes": 107457,
+                "media_bytes": 107457,
+                "sha256_delivered": "ccf1a821d57a14c0e8573a0e2d2fb08e70f2c3196091b0622fa6b49290dd370f",
+                "sha256_match": false,
+                "byte_identical_bytes": 107457,
+                "byte_identical_pct": 99.74,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              },
+              "sub2": {
+                "role": "sub2",
+                "artifact_bytes": 0,
+                "media_bytes": 0,
+                "sha256_delivered": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "sha256_match": false,
+                "byte_identical_bytes": 0,
+                "byte_identical_pct": 0.0,
+                "mlog_delivered_bytes": null,
+                "verdict": "mismatch"
+              }
+            }
+          },
+          "per_sub": {
+            "sub1": {
+              "role": "sub1",
+              "artifact_bytes": 107457,
+              "media_bytes": 107457,
+              "sha256_delivered": "ccf1a821d57a14c0e8573a0e2d2fb08e70f2c3196091b0622fa6b49290dd370f",
+              "sha256_match": false,
+              "byte_identical_bytes": 107457,
+              "byte_identical_pct": 99.74,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            },
+            "sub2": {
+              "role": "sub2",
+              "artifact_bytes": 0,
+              "media_bytes": 0,
+              "sha256_delivered": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "sha256_match": false,
+              "byte_identical_bytes": 0,
+              "byte_identical_pct": 0.0,
+              "mlog_delivered_bytes": null,
+              "verdict": "mismatch"
+            }
+          },
+          "completed": false,
+          "completion_reason": "time limit reached",
+          "run_duration_s": 25.11,
+          "delivered_full": false,
+          "worst_sub_role": "sub2",
+          "worst_sub_coverage_pct": 0.0
+        },
+        "expected": "fail",
+        "confusion": "TN",
+        "metrics": {
+          "setup_time_ms": null,
+          "time_to_first_object_ms": null,
+          "objects_published": 11,
+          "objects_received": null,
+          "object_loss_rate": null,
+          "throughput_bps": 34323,
+          "jitter_ms": null,
+          "rtt_estimate_ms": 25.2015,
+          "rtt_min_ms": 5.2,
+          "rtt_max_ms": 333.0,
+          "packets_sent": 168,
+          "packets_received": 162,
+          "packets_lost": 0,
+          "packet_loss_rate": 0.0,
+          "wire_total_packets": 0,
+          "wire_total_bytes": 0,
+          "wire_quic_packets": 0,
+          "wire_quic_bytes": 0,
+          "wire_rtt_estimate_ms": null,
+          "wire_rtt_min_ms": null,
+          "wire_rtt_max_ms": null,
+          "wire_decryption_success": false,
+          "wire_error": null,
+          "delivered_bytes": 107733,
+          "delivered_fraction": 0.997796
+        }
+      }
+    }
+  ]
+}

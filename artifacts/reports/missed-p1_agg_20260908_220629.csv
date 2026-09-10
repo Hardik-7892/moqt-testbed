@@ -1,0 +1,9 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+chain-loss1-inter-relay-only,3,pass+pass+pass,good+good+good,285385.0,286238.2,3,46.8481,46.8481,3,3,0.997796,,,0,284654.3046357616,285505.43046357617,3
+chain-loss1-sub-only,3,pass+pass+pass,mismatch+good+good,281654.0,284164.1,3,44.5975,44.5975,3,3,0.997796,,,0,280933.3333333333,283436.699669967,3
+fanout-moqrs-8sub,3,pass+pass+pass,mismatch+mismatch+mismatch,859000.0,1074023.5,3,39.9347,39.9347,3,3,2.993387,,,0,284654.3046357616,285505.43046357617,3
+fanout-moqrs-delay-skew,3,pass+pass+pass,mismatch+mismatch+mismatch,856156.0,1116416.2,3,193.4589,193.4589,3,3,2.993387,1.0,1.0,1,285600.0,798442.6490066224,3
+queue100-loss0-bw5,3,pass+pass+pass,good+good+good,285385.0,286238.2,3,54.6178,54.6178,3,3,0.997796,,,0,284654.3046357616,285505.43046357617,3
+queue100-loss1-bw5,3,pass+pass+pass,good+good+good,286333.0,286333.0,3,7.935,14.902529999999999,3,3,0.997796,,,0,285600.0,285600.0,3
+queue1000-loss0-bw5,3,pass+pass+pass,good+good+mismatch,286333.0,286333.0,3,12.5442,12.5442,3,3,0.997796,,,0,285600.0,285600.0,3
+queue1000-loss1-bw5,3,pass+pass+pass,good+good+good,282578.0,285957.5,3,75.4697,75.4697,3,3,0.997796,,,0,281854.4262295082,285225.4426229508,3

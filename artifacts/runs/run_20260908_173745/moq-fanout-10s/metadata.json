@@ -1,0 +1,40 @@
+{
+  "run_id": "moq-fanout-10s",
+  "timestamp": "2026-09-08T17:48:33.643091+00:00",
+  "config": {
+    "id": "moq-fanout-10s",
+    "expect": "partial",
+    "topology": "fanout",
+    "pub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-client:18"
+    },
+    "relay": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-relay:18"
+    },
+    "sub": {
+      "impl": "moq-rs",
+      "draft": 18,
+      "tag": "0hardikpandey/moq-rs-client:18"
+    },
+    "media": "sample.mp4",
+    "test_duration": 20,
+    "network": {
+      "num_subscribers": 3,
+      "bw": 20,
+      "delay": "10ms",
+      "loss": 0
+    },
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 20,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "num_subscribers": 3
+  }
+}

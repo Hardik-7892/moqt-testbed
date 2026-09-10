@@ -1,0 +1,69 @@
+[lldash-client] streaming protocol=h2 join_delay=0.0s origin=https://10.0.0.2:443 mpd=sample_120s.mpd output=/output/lldash-h2-late-join-5s.mp4
+[lldash-client] MPD loaded from local /data/sample_120s.mpd (1241 B)
+[lldash-client] MPD parsed: init=init-stream0.m4s segments=60 seg_dur=2.00s
+[lldash-client] streaming skip=0/60 from=chunk-stream0-00001.m4s (late joiner misses the start)
+[lldash-client] init GET https://10.0.0.2:443/init-stream0.m4s 834 B proto=HTTP/2
+[lldash-client] segment 1/60 https://10.0.0.2:443/chunk-stream0-00001.m4s 15356 B sha=96441ec7 proto=HTTP/2
+[lldash-client] segment 2/60 https://10.0.0.2:443/chunk-stream0-00002.m4s 14640 B sha=c249d59a proto=HTTP/2
+[lldash-client] segment 3/60 https://10.0.0.2:443/chunk-stream0-00003.m4s 14799 B sha=96d27696 proto=HTTP/2
+[lldash-client] segment 4/60 https://10.0.0.2:443/chunk-stream0-00004.m4s 14781 B sha=797db7ad proto=HTTP/2
+[lldash-client] segment 5/60 https://10.0.0.2:443/chunk-stream0-00005.m4s 15524 B sha=278bca21 proto=HTTP/2
+[lldash-client] segment 6/60 https://10.0.0.2:443/chunk-stream0-00006.m4s 14898 B sha=d94c31a8 proto=HTTP/2
+[lldash-client] segment 7/60 https://10.0.0.2:443/chunk-stream0-00007.m4s 14173 B sha=69c68ae3 proto=HTTP/2
+[lldash-client] segment 8/60 https://10.0.0.2:443/chunk-stream0-00008.m4s 14842 B sha=2f7473ac proto=HTTP/2
+[lldash-client] segment 9/60 https://10.0.0.2:443/chunk-stream0-00009.m4s 14707 B sha=784c0a64 proto=HTTP/2
+[lldash-client] segment 10/60 https://10.0.0.2:443/chunk-stream0-00010.m4s 13986 B sha=6957f8df proto=HTTP/2
+[lldash-client] segment 11/60 https://10.0.0.2:443/chunk-stream0-00011.m4s 15281 B sha=b3487605 proto=HTTP/2
+[lldash-client] segment 12/60 https://10.0.0.2:443/chunk-stream0-00012.m4s 15047 B sha=f1eda2e1 proto=HTTP/2
+[lldash-client] segment 13/60 https://10.0.0.2:443/chunk-stream0-00013.m4s 15070 B sha=0bc90014 proto=HTTP/2
+[lldash-client] segment 14/60 https://10.0.0.2:443/chunk-stream0-00014.m4s 14901 B sha=2296c4a8 proto=HTTP/2
+[lldash-client] segment 15/60 https://10.0.0.2:443/chunk-stream0-00015.m4s 14838 B sha=84e5f414 proto=HTTP/2
+[lldash-client] segment 16/60 https://10.0.0.2:443/chunk-stream0-00016.m4s 15014 B sha=775c41e0 proto=HTTP/2
+[lldash-client] segment 17/60 https://10.0.0.2:443/chunk-stream0-00017.m4s 15147 B sha=b4aba4f5 proto=HTTP/2
+[lldash-client] segment 18/60 https://10.0.0.2:443/chunk-stream0-00018.m4s 15325 B sha=6e0a1933 proto=HTTP/2
+[lldash-client] segment 19/60 https://10.0.0.2:443/chunk-stream0-00019.m4s 15071 B sha=fa9d3596 proto=HTTP/2
+[lldash-client] segment 20/60 https://10.0.0.2:443/chunk-stream0-00020.m4s 14864 B sha=49ffa7f5 proto=HTTP/2
+[lldash-client] segment 21/60 https://10.0.0.2:443/chunk-stream0-00021.m4s 14014 B sha=f5a0007f proto=HTTP/2
+[lldash-client] segment 22/60 https://10.0.0.2:443/chunk-stream0-00022.m4s 14967 B sha=b4a623c9 proto=HTTP/2
+[lldash-client] segment 23/60 https://10.0.0.2:443/chunk-stream0-00023.m4s 15034 B sha=b8af01b0 proto=HTTP/2
+[lldash-client] segment 24/60 https://10.0.0.2:443/chunk-stream0-00024.m4s 14918 B sha=b910df16 proto=HTTP/2
+[lldash-client] segment 25/60 https://10.0.0.2:443/chunk-stream0-00025.m4s 14802 B sha=df2510c5 proto=HTTP/2
+[lldash-client] segment 26/60 https://10.0.0.2:443/chunk-stream0-00026.m4s 15074 B sha=33070548 proto=HTTP/2
+[lldash-client] segment 27/60 https://10.0.0.2:443/chunk-stream0-00027.m4s 15010 B sha=de1d488d proto=HTTP/2
+[lldash-client] segment 28/60 https://10.0.0.2:443/chunk-stream0-00028.m4s 15180 B sha=d9189e0f proto=HTTP/2
+[lldash-client] segment 29/60 https://10.0.0.2:443/chunk-stream0-00029.m4s 14938 B sha=e81bdb52 proto=HTTP/2
+[lldash-client] segment 30/60 https://10.0.0.2:443/chunk-stream0-00030.m4s 14869 B sha=faf68387 proto=HTTP/2
+[lldash-client] segment 31/60 https://10.0.0.2:443/chunk-stream0-00031.m4s 15005 B sha=bd4fba38 proto=HTTP/2
+[lldash-client] segment 32/60 https://10.0.0.2:443/chunk-stream0-00032.m4s 15034 B sha=4f1a24d2 proto=HTTP/2
+[lldash-client] segment 33/60 https://10.0.0.2:443/chunk-stream0-00033.m4s 15403 B sha=6e74cf90 proto=HTTP/2
+[lldash-client] segment 34/60 https://10.0.0.2:443/chunk-stream0-00034.m4s 15174 B sha=d2d6c815 proto=HTTP/2
+[lldash-client] segment 35/60 https://10.0.0.2:443/chunk-stream0-00035.m4s 15105 B sha=4e10bfac proto=HTTP/2
+[lldash-client] segment 36/60 https://10.0.0.2:443/chunk-stream0-00036.m4s 15302 B sha=e7786b9d proto=HTTP/2
+[lldash-client] segment 37/60 https://10.0.0.2:443/chunk-stream0-00037.m4s 15218 B sha=836c29cf proto=HTTP/2
+[lldash-client] segment 38/60 https://10.0.0.2:443/chunk-stream0-00038.m4s 15226 B sha=475208fb proto=HTTP/2
+[lldash-client] segment 39/60 https://10.0.0.2:443/chunk-stream0-00039.m4s 15161 B sha=f351cbba proto=HTTP/2
+[lldash-client] segment 40/60 https://10.0.0.2:443/chunk-stream0-00040.m4s 15115 B sha=1f943fed proto=HTTP/2
+[lldash-client] segment 41/60 https://10.0.0.2:443/chunk-stream0-00041.m4s 15305 B sha=c995b8a5 proto=HTTP/2
+[lldash-client] segment 42/60 https://10.0.0.2:443/chunk-stream0-00042.m4s 15393 B sha=cd2a15f6 proto=HTTP/2
+[lldash-client] segment 43/60 https://10.0.0.2:443/chunk-stream0-00043.m4s 15427 B sha=96fa0e64 proto=HTTP/2
+[lldash-client] segment 44/60 https://10.0.0.2:443/chunk-stream0-00044.m4s 15362 B sha=40af519d proto=HTTP/2
+[lldash-client] segment 45/60 https://10.0.0.2:443/chunk-stream0-00045.m4s 15572 B sha=29b0e7d3 proto=HTTP/2
+[lldash-client] segment 46/60 https://10.0.0.2:443/chunk-stream0-00046.m4s 15802 B sha=51f67bf9 proto=HTTP/2
+[lldash-client] segment 47/60 https://10.0.0.2:443/chunk-stream0-00047.m4s 15753 B sha=f4b14634 proto=HTTP/2
+[lldash-client] segment 48/60 https://10.0.0.2:443/chunk-stream0-00048.m4s 15796 B sha=0c6af3f6 proto=HTTP/2
+[lldash-client] segment 49/60 https://10.0.0.2:443/chunk-stream0-00049.m4s 15624 B sha=09f8c0e5 proto=HTTP/2
+[lldash-client] segment 50/60 https://10.0.0.2:443/chunk-stream0-00050.m4s 15618 B sha=a1f4bb11 proto=HTTP/2
+[lldash-client] segment 51/60 https://10.0.0.2:443/chunk-stream0-00051.m4s 15651 B sha=4f34339f proto=HTTP/2
+[lldash-client] segment 52/60 https://10.0.0.2:443/chunk-stream0-00052.m4s 15461 B sha=915fe0cb proto=HTTP/2
+[lldash-client] segment 53/60 https://10.0.0.2:443/chunk-stream0-00053.m4s 15380 B sha=66c717b0 proto=HTTP/2
+[lldash-client] segment 54/60 https://10.0.0.2:443/chunk-stream0-00054.m4s 15083 B sha=5d6ba04e proto=HTTP/2
+[lldash-client] segment 55/60 https://10.0.0.2:443/chunk-stream0-00055.m4s 14650 B sha=b4496b7b proto=HTTP/2
+[lldash-client] segment 56/60 https://10.0.0.2:443/chunk-stream0-00056.m4s 15501 B sha=46efb9f9 proto=HTTP/2
+[lldash-client] segment 57/60 https://10.0.0.2:443/chunk-stream0-00057.m4s 15109 B sha=9ece6f2c proto=HTTP/2
+[lldash-client] segment 58/60 https://10.0.0.2:443/chunk-stream0-00058.m4s 15204 B sha=47b71558 proto=HTTP/2
+[lldash-client] segment 59/60 https://10.0.0.2:443/chunk-stream0-00059.m4s 15094 B sha=296d9720 proto=HTTP/2
+[lldash-client] segment 60/60 https://10.0.0.2:443/chunk-stream0-00060.m4s 14965 B sha=2fb96b44 proto=HTTP/2
+[lldash-client] manifest wrote lldash-h2-late-join-5s.segments.json fetched=60/60 skipped=0
+[lldash-client] DONE streaming fetched=60/60 skipped=0 total_bytes=907397 elapsed=8.14s ttfo_ms=208 protocol=h2 protos={'HTTP/2': 61}
+[lldash-client] time_to_first_object_ms: 208ms
+[lldash-client] time_to_first_chunk_ms: 208ms

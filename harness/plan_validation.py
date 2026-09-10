@@ -43,10 +43,12 @@ MISPLACED_RUN_KEYS = {
 }
 
 # network.* keys that are wired (everything else inside network: errors).
+# - quiet_period: consecutive no-growth polls before quiescence
+#   (harness/runner.py _wait_for_completion; tests/test_completion.py).
 WIRED_NETWORK_KEYS = frozenset({
     "bw", "delay", "loss", "max_queue_size", "relay_delay",
     "devices", "num_subscribers", "late_sub_count", "late_join_delay_s",
-    "late_joins", "capture",
+    "late_joins", "capture", "quiet_period",
 })
 
 # Plan-level keys that are wired or pure documentation (metrics: is docs-only).

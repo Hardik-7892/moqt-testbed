@@ -1,0 +1,38 @@
+{
+  "run_id": "lldash-h2-late-join-5s",
+  "timestamp": "2026-09-08T17:35:55.735811+00:00",
+  "config": {
+    "id": "lldash-h2-late-join-5s",
+    "topology": "fanout",
+    "pub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "relay": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "sub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-client-h2:latest"
+    },
+    "network": {
+      "num_subscribers": 2,
+      "late_sub_count": 1,
+      "late_join_delay_s": 5,
+      "bw": 20,
+      "delay": "10ms",
+      "loss": 0
+    },
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 20,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "num_subscribers": 2,
+    "late_sub_count": 1,
+    "late_join_delay_s": 5
+  }
+}

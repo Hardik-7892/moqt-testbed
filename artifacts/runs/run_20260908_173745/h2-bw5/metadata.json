@@ -1,0 +1,30 @@
+{
+  "run_id": "h2-bw5",
+  "timestamp": "2026-09-08T17:42:51.750746+00:00",
+  "config": {
+    "id": "h2-bw5",
+    "pub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "relay": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "sub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-client-h2:latest"
+    },
+    "network": {
+      "bw": 5
+    },
+    "topology": "basic",
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 5,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000
+  }
+}

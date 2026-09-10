@@ -1,0 +1,38 @@
+{
+  "run_id": "lldash-h2-chain",
+  "timestamp": "2026-09-08T17:34:19.696052+00:00",
+  "config": {
+    "id": "lldash-h2-chain",
+    "topology": "chain",
+    "pub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "relay_a": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "relay_b": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-origin-h2:latest"
+    },
+    "sub": {
+      "impl": "lldash-h2",
+      "tag": "0hardikpandey/lldash-client-h2:latest"
+    },
+    "network": {
+      "bw": 50,
+      "delay": "10ms",
+      "relay_delay": "20ms",
+      "loss": 0
+    },
+    "require_integrity": true
+  },
+  "network": {
+    "bw": 50,
+    "delay": "10ms",
+    "loss": 0,
+    "max_queue_size": 1000,
+    "relay_delay": "20ms"
+  }
+}

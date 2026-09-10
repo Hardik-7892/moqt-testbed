@@ -1,0 +1,17 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+h2-bw5,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,1016691.0,1035545.0,5,,,0,5,1.003251,,,0,1016691.3165266106,1035545.7917261056,5
+h2-clean,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,1001265.0,1174998.5999999999,5,,,0,5,1.003251,,,0,1001265.6551724138,1174999.2916785544,5
+h2-clean-10s,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,274324.0,289869.0,5,,,0,5,1.006761,,,0,274324.29022082017,289869.3333333333,5
+h2-fanout-3,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,3050073.0,3514022.8,5,,,0,5,3.009752,1.0,1.0,5,3050073.949579832,3514023.4084435543,5
+h2-loss1,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,722306.0,872013.2,5,,,0,5,1.003251,,,0,722306.0696517412,872014.1062343753,5
+h3-bw5,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,804786.0,971491.2,5,,,0,5,1.003251,,,0,804786.6962305987,971491.8566495691,5
+h3-clean,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,1161468.0,1199072.4,5,,,0,5,1.003251,,,0,1161468.16,1199073.1171048512,5
+h3-clean-10s,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,288906.0,289676.4,5,,,0,5,1.006761,,,0,288906.31229235884,289676.72912513843,5
+h3-fanout-3,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,3080272.0,4145058.6,5,,,0,5,3.009752,1.0,1.0,5,3080272.7015558695,4145059.3108207183,5
+h3-loss1,5,pass+pass+pass+pass+pass,exact+exact+exact+exact+exact,778881.0,1191225.0,5,,,0,5,1.003251,,,0,778881.5450643777,1191225.5010697474,5
+moq-bw5,5,fail+fail+fail+fail+fail,mismatch+mismatch+mismatch+mismatch+mismatch,180518.0,2327722.2,5,7.4881,34.27068,5,5,0.998687,,,0,180518.41119160628,2281818.5060385866,5
+moq-clean,5,fail+pass+fail+pass+fail,mismatch+good+mismatch+good+mismatch,2346153.0,2359948.6,5,27.7421,28.251200000000004,5,5,0.998687,,,0,2330864.5161290322,2352113.35504886,5
+moq-clean-10s,5,pass+pass+pass+pass+pass,good+good+good+good+good,286333.0,286333.0,5,26.8081,32.5878,5,5,0.997796,,,0,285600.0,285600.0,5
+moq-fanout-10s,5,fail+fail+fail+fail+fail,mismatch+mismatch+mismatch+mismatch+mismatch,561474.0,790504.6,5,11.9409,25.235259999999997,5,5,1.995591,1.0,1.0,1,285600.0,732514.5098039214,5
+moq-fanout-3,5,fail+fail+fail+fail+fail,mismatch+mismatch+mismatch+mismatch+mismatch,2353795.0,4692306.0,5,29.9174,35.2732,5,5,1.997373,0.9994,0.9994,1,2306628.5714285714,2344868.679724185,5
+moq-loss1,5,pass+pass+pass+pass+fail,good+good+good+good+mismatch,2316074.0,2350748.0,5,26.2502,29.1415,5,5,0.998687,,,0,2315923.076923077,2350594.9084469182,5

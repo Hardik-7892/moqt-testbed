@@ -1,0 +1,5 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+fanout-h3-5sub,1,pass,exact,1078918.0,1078918.0,1,,,0,1,5.033805,1.0,1.0,1,1078918.1141439206,1078918.1141439206,1
+fanout-moqrs-5sub,1,pass,mismatch,284443.0,284443.0,1,30.8627,30.8627,1,1,0.997796,,,0,283714.85148514854,283714.85148514854,1
+fanout-moqrs-5sub-loss1pct,1,pass,mismatch,284443.0,284443.0,1,55.3889,55.3889,1,1,0.997796,,,0,283714.85148514854,283714.85148514854,1
+fanout-moqrs-8sub,1,pass,mismatch,281654.0,281654.0,1,36.8519,36.8519,1,1,0.997796,,,0,280933.3333333333,280933.3333333333,1

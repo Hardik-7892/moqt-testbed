@@ -1,0 +1,16 @@
+Plan: draft16-probe
+Total: 3
+Pass:  2
+Partial: 1
+Fail:  0
+
+Run ID                                                       Status     Delivered                                Integrity              RTT (ms)     End                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+d16-basic-1seg                                               pass       21043/21110 (99.68%) [100.0% exp] good 99.28%            13.4         quiesced              
+    sub: artifact=20892 B, media=20892 B, mlog=21043, prefix=99.28%, verdict=good
+d16-fanout-2sub-1seg                                         pass       84172/21110 (398.73%) [full 2/2] sha mismatch 99.28% identical 10.0         time limit            
+    sub1: artifact=20892 B, media=20892 B, mlog=-, prefix=99.28%, verdict=mismatch
+    sub2: artifact=20892 B, media=20892 B, mlog=-, prefix=99.28%, verdict=mismatch
+d16-fanout-2sub-mirror                                       partial    46068/107971 (42.67%) [full 0/2] sha mismatch 0.75% identical 7.8          time limit            
+    sub1: artifact=11241 B, media=11241 B, mlog=-, prefix=0.75%, verdict=mismatch
+    sub2: artifact=11241 B, media=11241 B, mlog=-, prefix=0.75%, verdict=mismatch

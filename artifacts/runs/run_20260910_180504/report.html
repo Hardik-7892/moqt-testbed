@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MoQT Test Report - draft16-probe</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --pass: #2e7d32;
+  --pass-bg: #e8f5e9;
+  --partial: #f57f17;
+  --partial-bg: #fff8e1;
+  --fail: #c62828;
+  --fail-bg: #fbe9e7;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card-bg: #ffffff;
+  --header-bg: #f9fafb;
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #f3f4f6; color: var(--text); line-height: 1.5; }
+.container { max-width: 1400px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.header h1 { margin: 0; font-size: 1.75rem; font-weight: 600; }
+.header .meta { color: var(--muted); font-size: 0.875rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.stat-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+.stat-card .value { font-size: 2rem; font-weight: 700; }
+.stat-card.pass .value { color: var(--pass); }
+.stat-card.partial .value { color: var(--partial); }
+.stat-card.fail .value { color: var(--fail); }
+.stat-card.total .value { color: var(--text); }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--header-bg); font-weight: 600; }
+.card-body { padding: 20px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: var(--header-bg); font-weight: 600; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafafa; }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+.badge-pass { background: var(--pass-bg); color: var(--pass); }
+.badge-partial { background: var(--partial-bg); color: var(--partial); }
+.badge-fail { background: var(--fail-bg); color: var(--fail); }
+.badge-unknown { background: var(--border); color: var(--muted); }
+.network-badge { display: inline-flex; gap: 8px; font-size: 0.75rem; color: var(--muted); }
+.network-badge span { background: var(--header-bg); padding: 2px 8px; border-radius: 4px; font-family: monospace; }
+.chart-wrap { height: 300px; position: relative; }
+.integrity-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.integrity-bar > div { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+.integrity-exact { background: var(--pass); }
+.integrity-good { background: var(--partial); }
+.integrity-mismatch { background: var(--fail); }
+.collapsible { cursor: pointer; user-select: none; }
+.collapsible-content { display: none; }
+.collapsible.open + .collapsible-content { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.sub-row { background: #fafafa; }
+.sub-row td { padding-left: 40px; font-size: 0.8125rem; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8125rem; }
+.empty-state { text-align: center; padding: 40px; color: var(--muted); }
+.tooltip { position: relative; }
+.tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.75rem; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <div>
+      <h1>MoQT Test Report</h1>
+      <div class="meta">Plan: <strong>draft16-probe</strong> - Generated: 2026-09-10T18:07:35.291071+00:00</div>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card total"><div class="label">Total Runs</div><div class="value">3</div></div>
+    <div class="stat-card pass"><div class="label">Pass</div><div class="value">2</div></div>
+    <div class="stat-card partial"><div class="label">Partial</div><div class="value">1</div></div>
+    <div class="stat-card fail"><div class="label">Fail</div><div class="value">0</div></div>
+  </div>
+
+  <section class="card" style="margin-bottom:24px;">
+    <div class="card-header">Overview Charts</div>
+    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
+      <div><canvas id="cov-chart" class="chart-wrap"></canvas></div>
+      <div><canvas id="thr-chart" class="chart-wrap"></canvas></div>
+      <div><canvas id="rtt-chart" class="chart-wrap"></canvas></div>
+    </div>
+  </section>
+
+  <section class="card"><div class="card-header">Confusion Matrix (I1)</div><div class="card-body">
+<div class="table-wrap"><table style="max-width:640px;">
+<thead><tr><th></th><th>Expected Pass</th><th>Expected Fail</th></tr></thead>
+<tbody>
+<tr><th style="background:var(--header-bg)">Actual Pass</th>
+<td style="background:#e8f5e9;font-weight:600;">1 TP</td>
+<td style="background:#fbe9e7;font-weight:600;">1 FP</td></tr>
+<tr><th style="background:var(--header-bg)">Actual Fail</th>
+<td style="background:#fff8e1;font-weight:600;">0 FN</td>
+<td style="background:#e3f2fd;font-weight:600;">0 TN</td></tr>
+</tbody></table></div>
+<p style="color:var(--muted);font-size:0.8rem;">TP=True Positive, TN=True Negative, FP=False Positive,
+FN=False Negative. "Actual" = measured status; "Expected" = plan's
+<code>expect:</code> marker. Partial counts toward Fail. Unclassified rows: 1 (no/unknown expectation).</p>
+</div></section>
+
+  <section class="card"><div class="card-header">Interop Matrix</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Relay</th><th>moq-rs - moq-rs</th></tr></thead><tbody><tr><td><strong>moq-rs</strong></td><td><span class="badge badge-partial">partial</span></td></tr></tbody></table></div></div></section>
+
+  <section class="card">
+    <div class="card-header">Detailed Results</div>
+    <div class="card-body">
+      <div class="table-wrap">
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Run ID</th><th>Status</th><th>Expected</th><th>Confusion</th><th>Pub</th><th>Relay</th><th>Sub</th>
+              <th>Network</th><th>Delivered</th><th>Integrity</th><th>Objects</th><th>RTT (ms)</th><th>Throughput</th>
+            </tr>
+          </thead>
+          <tbody><tr><td class="mono">d16-basic-1seg</td><td><span class="badge badge-pass">pass</span></td><td class="mono">pass</td><td><span class="badge badge-pass">TP</span></td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td><span class="mono">-</span></td><td>99.7% <span class="tooltip" data-tip="Coverage vs expected media (21043 B, trailing boxes excluded)">[100.0% exp]</span></td><td><div class="integrity-bar" title="good 99.28%"><div class="integrity-good" style="width: 99.28%"></div></div><div style="margin-top:4px;font-size:0.75rem;">good 99.28%</div></td><td class="mono">2/None</td><td class="mono">13.4</td><td class="mono">0.06 Mbps</td></tr><tr><td class="mono">d16-fanout-2sub-1seg</td><td><span class="badge badge-pass">pass</span></td><td class="mono">fail</td><td><span class="badge badge-fail">FP</span></td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td><div class="network-badge"><span>subs=2</span></div></td><td>398.7% <span class="tooltip" data-tip="Subscribers served the full stream">[full 2/2]</span></td><td><div class="integrity-bar" title="mismatch 99.28%"><div class="integrity-mismatch" style="width: 99.28%"></div></div><div style="margin-top:4px;font-size:0.75rem;">mismatch 99.28%</div></td><td class="mono">2/None</td><td class="mono">10.0</td><td class="mono">0.01 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 0.03 agg)</span></td></tr><tr><td class="mono">d16-fanout-2sub-mirror</td><td><span class="badge badge-partial">partial</span></td><td class="mono">fail</td><td><span class="badge badge-unknown">?</span></td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td><div class="network-badge"><span>subs=2</span></div></td><td>42.7% <span class="tooltip" data-tip="Subscribers served the full stream">[full 0/2]</span></td><td><div class="integrity-bar" title="mismatch 0.75%"><div class="integrity-mismatch" style="width: 0.75%"></div></div><div style="margin-top:4px;font-size:0.75rem;">mismatch 0.75%</div></td><td class="mono">11/None</td><td class="mono">7.8</td><td class="mono">0.01 Mbps <span style='color:var(--muted);font-size:0.7rem;'>(avg per sub, 0.01 agg)</span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card"><div class="card-header">Per-Subscriber Delivery</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Run ID</th><th>Subscriber</th><th>Artifact (B)</th><th>Media (B)</th><th>mlog (B)</th><th>Prefix Identical</th><th>Segments</th><th>Throughput</th><th>Verdict</th></tr></thead><tbody><tr class="sub-row"><td class="mono">d16-basic-1seg</td><td>sub</td><td class="mono">20892</td><td class="mono">20892</td><td class="mono">21043</td><td>99.28%</td><td class="mono">-</td><td class="mono">0.06 Mbps</td><td><span class="badge badge-pass">good</span></td></tr><tr class="sub-row"><td class="mono">d16-fanout-2sub-1seg</td><td>sub1</td><td class="mono">20892</td><td class="mono">20892</td><td class="mono">None</td><td>99.28%</td><td class="mono">-</td><td class="mono">0.01 Mbps</td><td><span class="badge badge-fail">mismatch</span></td></tr><tr class="sub-row"><td class="mono">d16-fanout-2sub-1seg</td><td>sub2</td><td class="mono">20892</td><td class="mono">20892</td><td class="mono">None</td><td>99.28%</td><td class="mono">-</td><td class="mono">0.01 Mbps</td><td><span class="badge badge-fail">mismatch</span></td></tr><tr class="sub-row"><td class="mono">d16-fanout-2sub-mirror</td><td>sub1</td><td class="mono">11241</td><td class="mono">11241</td><td class="mono">None</td><td>0.75%</td><td class="mono">-</td><td class="mono">0.00 Mbps</td><td><span class="badge badge-fail">mismatch</span></td></tr><tr class="sub-row"><td class="mono">d16-fanout-2sub-mirror</td><td>sub2</td><td class="mono">11241</td><td class="mono">11241</td><td class="mono">None</td><td>0.75%</td><td class="mono">-</td><td class="mono">0.00 Mbps</td><td><span class="badge badge-fail">mismatch</span></td></tr></tbody></table></div></div></section>
+
+  <section class="card"><div class="card-header">Integrity Detail</div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Run ID</th><th>Expected (init/segments)</th><th>Received (mlog)</th><th>Per-object Match</th><th>Delivered (mlog)</th><th>Expected SHA</th><th>Delivered SHA</th></tr></thead><tbody><tr><td class="mono">d16-basic-1seg</td><td class="mono">init=769+seg=20274</td><td class="mono">769+20274</td><td>YES</td><td class="mono">21043</td><td class="mono">417729c23f5cc5df...</td><td class="mono">ae7430ae8b0b2ea7...</td></tr><tr><td class="mono">d16-fanout-2sub-1seg</td><td class="mono">init=769+seg=20274</td><td class="mono">769+20274</td><td>-</td><td class="mono">84172</td><td class="mono">417729c23f5cc5df...</td><td class="mono">-...</td></tr><tr><td class="mono">d16-fanout-2sub-mirror</td><td class="mono">init=786+seg=10697+seg=10712+seg=10669+seg=10642+seg=10615+seg=10569+seg=10969+seg=10611+seg=10732+seg=10731</td><td class="mono">786+10731</td><td>-</td><td class="mono">46068</td><td class="mono">c2b07dd6bd23cd9a...</td><td class="mono">-...</td></tr></tbody></table></div></div></section>
+
+</div>
+
+<script>
+
+const labels = ["d16-basic-1seg", "d16-fanout-2sub-1seg", "d16-fanout-2sub-mirror"];
+const coverage = [99.68, 199.365, 42.67];
+const throughput = [0.056114, 0.0134295, 0.0073295];
+const barColors = ["#2e7d32", "#2e7d32", "#f57f17"];
+
+new Chart(document.getElementById('cov-chart'), {
+  type: 'bar',
+  data: { labels, datasets: [{ label: 'Coverage %', data: coverage, backgroundColor: barColors }] },
+  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, title: { display: true, text: 'Coverage %' } } } }
+});
+
+new Chart(document.getElementById('thr-chart'), {
+  type: 'bar',
+  data: { labels, datasets: [{ label: 'Throughput (Mbps)', data: throughput, backgroundColor: barColors }] },
+  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, title: { display: true, text: 'Mbps' } } } }
+});
+
+const rttData = [13.4448, 10.041, 7.7999];
+if (true) {
+  new Chart(document.getElementById('rtt-chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'RTT (ms)', data: rttData, backgroundColor: barColors }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, title: { display: true, text: 'ms' } } } }
+  });
+} else {
+  const el = document.getElementById('rtt-chart');
+  if (el) el.parentElement.innerHTML = '<div class="empty-state">No RTT data (lldash baseline has no qlog; use MoQ runs for RTT)</div>';
+}
+
+
+</script>
+</body>
+</html>

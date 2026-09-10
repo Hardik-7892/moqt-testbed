@@ -1,0 +1,7 @@
+run_id,n,statuses,verdicts,throughput_p50,throughput_p95,throughput_n,rtt_p50,rtt_p95,rtt_n,ttfo_n_null,delfrac_p50,jain_min,jain_p50,jain_n,artifact_thr_p50,artifact_thr_p95,artifact_thr_n
+fairness-3sub-asymmetric,1,pass,mismatch,276238.0,276238.0,1,26.968,26.968,1,1,0.997796,,,0,275530.76923076925,275530.76923076925,1
+fairness-3sub-shared-egress-10m,1,pass,mismatch,276238.0,276238.0,1,28.4393,28.4393,1,1,0.997796,,,0,275530.76923076925,275530.76923076925,1
+fairness-3sub-shared-egress-5m,1,pass,mismatch,275355.0,275355.0,1,67.7552,67.7552,1,1,0.997796,,,0,274650.47923322686,274650.47923322686,1
+fairness-3sub-symmetric,1,pass,mismatch,271881.0,271881.0,1,14.1052,14.1052,1,1,0.997796,,,0,271184.858044164,271184.858044164,1
+fairness-3sub-unconstrained,1,pass,mismatch,276238.0,276238.0,1,26.0576,26.0576,1,1,0.997796,,,0,275530.76923076925,275530.76923076925,1
+fairness-4sub-bottleneck,1,pass,mismatch,271026.0,271026.0,1,28.025,28.025,1,1,0.997796,,,0,270332.0754716981,270332.0754716981,1

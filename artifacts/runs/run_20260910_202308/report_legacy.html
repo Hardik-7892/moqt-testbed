@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MoQT Interop Test Report (Legacy)</title>
+<style>
+body { font-family: monospace; margin: 20px; }
+table { border-collapse: collapse; }
+td, th { padding: 6px 10px; text-align: center; }
+.pass { background: #4caf50; color: white; }
+.fail { background: #f44336; color: white; }
+.partial { background: #ff9800; color: white; }
+.skip { background: #9e9e9e; color: white; }
+.tp { background: #2e7d32; color: white; }
+.tn { background: #1565c0; color: white; }
+.fp { background: #c62828; color: white; }
+.fn { background: #ef6c00; color: white; }
+h2 { margin-top: 30px; }
+</style>
+</head>
+<body>
+<h1>MoQT Interop Test Report</h1>
+<p>Plan: <b>fanout-verify</b></p>
+<p>Timestamp: <b>2026-09-10T20:24:19.114978+00:00</b></p>
+<p>Total: <b>1</b> | Pass: <b style='color:green'>0</b> | Partial: <b style='color:orange'>0</b> | Fail: <b style='color:red'>1</p>
+<h2>Confusion Matrix (I1)</h2>
+<table border='1'>
+<tr><th></th><th>Predicted Pass</th><th>Predicted Fail</th></tr>
+<tr><th>Actual Pass</th><td class='tp'>0 TP</td><td class='fn'>0 FN</td></tr>
+<tr><th>Actual Fail</th><td class='fp'>0 FP</td><td class='tn'>1 TN</td></tr>
+</table>
+<p>TP=True Positive, TN=True Negative, FP=False Positive, FN=False Negative</p>
+<h2>Interop Matrix</h2>
+<table border='1'><tr><th>Relay</th><th>moq-rs → moq-rs</th></tr><tr><td><b>moq-rs</b></td><td class='fail'>fail</td></tr></table><h2>Detailed Results</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Status</th><th>Expected</th><th>Confusion</th><th>Pub</th><th>Relay</th><th>Sub</th><th>Network</th><th>Delivered</th><th>Integrity</th><th>Objects pub/recv</th><th>RTT (ms)</th><th>Throughput</th></tr>
+<tr><td>fanout-verify-2sub-fullwindow</td><td class='fail'>fail</td><td>pass</td><td class='tn'>TN</td><td>moq-rs</td><td>moq-rs</td><td>moq-rs</td><td>bw=? d=? l=?%</td><td>99.78% <span title='subscribers served the full stream'>[full 0/2]</span></td><td>sha ✗</td><td>11/None</td><td>74.6396</td><td>0.02 Mbps</td></tr>
+</table>
+<h2>Per-Subscriber Delivery</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Subscriber</th><th>Artifact (B)</th><th>Media (B)</th><th>mlog (B)</th><th>Prefix identical</th><th>Segments</th><th>Verdict</th></tr>
+<tr><td>fanout-verify-2sub-fullwindow</td><td>sub1</td><td>96842</td><td>96842</td><td>None</td><td>40.4%</td><td>-</td><td>mismatch</td></tr>
+<tr><td>fanout-verify-2sub-fullwindow</td><td>sub2</td><td>0</td><td>0</td><td>None</td><td>0.0%</td><td>-</td><td>mismatch</td></tr>
+</table>
+<h2>Integrity Detail</h2>
+<table border='1'>
+<tr><th>Run ID</th><th>Expected (init/segments)</th><th>Received (mlog)</th><th>Per-object match</th><th>Delivered</th><th>Expected SHA</th><th>Delivered SHA</th></tr>
+<tr><td>fanout-verify-2sub-fullwindow</td><td>init=786+seg=10697+seg=10712+seg=10669+seg=10642+seg=10615+seg=10569+seg=10969+seg=10611+seg=10732+seg=10731</td><td>786+10697+10712+10669+10642+10615+10569+10969+10611+10732+10731</td><td>-</td><td>107733</td><td>c2b07dd6bd23cd9a78ec34cc7e5ff6c4d843d6284ab6aad652625e1880b71c19</td><td>None</td></tr>
+</table>
+</body>
+</html>
