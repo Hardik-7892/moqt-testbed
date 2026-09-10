@@ -1,54 +1,24 @@
-# Testbed ignores: runs, media blobs, keys, logs, caches.
-# NOTE: bare "artifacts/" would make the reports/*.csv negation below dead
-# (git never descends into excluded dirs), so the exclusion is spelled out.
-artifacts/*
-!artifacts/reports/
-artifacts/reports/*
-!artifacts/reports/*.csv
-artifacts/reports/*.log
-*.qlog
-*.sqlog
-*.mlog
-*.pcap
-*.cap
-*.mp4
-*.flv
-*.mkv
-*.webm
-*.m4s
-*.mpd
-testdata/*.mp4
-testdata/*.flv
-testdata/*.mkv
-testdata/*.webm
-testdata/*.m4s
-testdata/*.mpd
-testdata/caddy/
-testdata/dash/
-*.pem
-*.key
-*.crt
-*.cert
-*.p12
-*.pfx
-**/certs/
-**/keys/
-*.log
-*.har
+# Test artifacts
+artifacts/runs/
+artifacts/latest/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.pytest_cache/
-.coverage
+*.egg-info/
 .venv/
 venv/
-.env
+
+# OS
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
+
+# Docker
 .docker/
-*.tar
-temp/
-.diag/
-*.docx
+
+# Temp
+*.log
+*.pcap
+*.keys
+*.pem
